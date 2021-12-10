@@ -121,9 +121,17 @@ class Session():
     def to_dict(self):
         return {
             'session_id': self.session_id,
-            'model': self.model_name,
-            'state_estimator': self.state_est_name,
-            'load_estimator': self.load_est_name,
-            'predictor': self.pred_name,
+            'model': {
+                'type': self.model_name,
+                'cfg': self.model_cfg },
+            'state_estimator': {
+                'type': self.state_est_name,
+                'cfg': self.state_est_cfg },
+            'load_estimator': {
+                'type': self.load_est_name,
+                'cfg': self.load_est_cfg },
+            'predictor': {
+                'type': self.pred_name,
+                'cfg': self.pred_cfg },
             'initialized': self.initialized
         }

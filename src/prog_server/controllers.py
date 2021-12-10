@@ -1,6 +1,7 @@
 # Copyright © 2021 United States Government as represented by the Administrator of the
 # National Aeronautics and Space Administration.  All Rights Reserved.
 
+from statistics import median_low
 from .models.session import Session
 from .models.load_ests import update_moving_avg
 from flask import request, abort, jsonify
@@ -32,7 +33,16 @@ def new_session():
 
     session_id = session_count
     session_count += 1
-    sessions[session_id] = Session(session_id, model_name)
+    sessions[session_id] = Session(session_id, model_name,
+        model_cfg = request.form.get('model.cfg', {}),
+        x0 = request.form.get('x0', None),
+        state_est_name = request.form.get('state_est', 'ParticleFilter'),
+        state_est_cfg = request.form.get('state_est.cfg', {}),
+        load_est_name = request.form.get('load_est', 'MovingAverage'),
+        load_est_cfg = request.form.get('load_est.cfg', {}),
+        pred_name = request.form.get('pred', 'MonteCarlo'),
+        pred_cfg = request.form.get('pred.cfg', {})
+    )
     
     return jsonify(sessions[session_id].to_dict())
 
@@ -253,22 +263,22 @@ def get_event_state(session_id):
     x = sessions[session_id].state_est.x.mean
     return jsonify(sessions[session_id].model.event_state(x))
 
-def get_observables(session_id):
+def get_perf_metrics(session_id):
     """
-    Get the observables for the session's model.
+    Get the performance metrics for the session's model.
 
     Args:
         session_id: The session ID.
 
     Returns:
-        The observables of the session.
+        The performance metrics of the session.
     """
     if session_id not in sessions:
         abort(400, f'Session {session_id} does not exist or has ended')
     if not sessions[session_id].initialized:
         abort(400, 'Model not initialized')
 
-    app.logger.debug(f"Getting observables for Session {session_id}")
+    app.logger.debug(f"Getting Performance Metrics for Session {session_id}")
     x = sessions[session_id].state_est.x.mean
     return jsonify(sessions[session_id].model.observables(x))
 
@@ -324,22 +334,22 @@ def get_predicted_event_state(session_id):
                 'event_state': es.snapshot(i).mean
              } for i in range(len(es.times))])
 
-def get_predicted_observables(session_id):
+def get_predicted_perf_metrics(session_id):
     """
-    Get the predicted observables for the session's model.
+    Get the predicted performance metrics for the session's model.
 
     Args:
         session_id: The session ID.
 
     Returns:
-        The predicted observables of the session.
+        The predicted performance metrics of the session.
     """
     if session_id not in sessions:
         abort(400, f'Session {session_id} does not exist or has ended')
     if not sessions[session_id].initialized:
         abort(400, 'Model not initialized')
 
-    app.logger.debug("Get predicted states for session {}".format(session_id)) 
+    app.logger.debug("Get predicted performance metrics for session {}".format(session_id)) 
     with sessions[session_id].locks['results']:
         if sessions[session_id].results is None:
             abort(400, 'No Completed Prediction')
@@ -347,7 +357,7 @@ def get_predicted_observables(session_id):
         return jsonify([
             {
                 'time': states.times[i], 
-                'observables': sessions[session_id].model.observables(states.snapshot(i).mean)
+                'performance metrics': sessions[session_id].model.observables(states.snapshot(i).mean)
              } for i in range(len(states.times))])
 
 def get_predicted_toe(session_id):
