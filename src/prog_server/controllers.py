@@ -6,6 +6,7 @@ from .models.load_ests import update_moving_avg
 from flask import request, abort, jsonify
 from flask import current_app as app
 import json
+from concurrent.futures._base import TimeoutError
 
 session_count = 0
 sessions = {}
@@ -212,7 +213,7 @@ def get_prediction_status(session_id):
     with sessions[session_id].locks['results']:
         if sessions[session_id].results is not None: 
             status['last prediction'] = sessions[session_id].results[0].strftime("%c")
-    return status  
+    return jsonify(status)  
 
 # Get current
 def get_state(session_id):
@@ -231,7 +232,7 @@ def get_state(session_id):
         abort(400, 'Model not initialized')
 
     app.logger.debug(f"Getting state for Session {session_id}")
-    return sessions[session_id].state_est.x.mean
+    return jsonify(sessions[session_id].x)
 
 def get_event_state(session_id):
     """
@@ -250,7 +251,7 @@ def get_event_state(session_id):
 
     app.logger.debug(f"Getting event state for Session {session_id}")
     x = sessions[session_id].state_est.x.mean
-    return sessions[session_id].model.event_state(x)
+    return jsonify(sessions[session_id].model.event_state(x))
 
 def get_observables(session_id):
     """
@@ -269,7 +270,7 @@ def get_observables(session_id):
 
     app.logger.debug(f"Getting observables for Session {session_id}")
     x = sessions[session_id].state_est.x.mean
-    return sessions[session_id].model.observables(x)
+    return jsonify(sessions[session_id].model.observables(x))
 
 def get_predicted_states(session_id):
     """
@@ -286,7 +287,16 @@ def get_predicted_states(session_id):
     if not sessions[session_id].initialized:
         abort(400, 'Model not initialized')
 
-    pass
+    app.logger.debug("Get predicted states for session {}".format(session_id)) 
+    with sessions[session_id].locks['results']:
+        if sessions[session_id].results is None:
+            abort(400, 'No Completed Prediction')
+        states = sessions[session_id].results[1]['states']
+        return jsonify([
+            {
+                'time': states.times[i], 
+                'state': states.snapshot(i).mean
+             } for i in range(len(states.times))])
 
 def get_predicted_event_state(session_id):
     """
@@ -303,7 +313,16 @@ def get_predicted_event_state(session_id):
     if not sessions[session_id].initialized:
         abort(400, 'Model not initialized')
 
-    pass
+    app.logger.debug("Get predicted event states for session {}".format(session_id)) 
+    with sessions[session_id].locks['results']:
+        if sessions[session_id].results is None:
+            abort(400, 'No Completed Prediction')
+        es = sessions[session_id].results[1]['event_states']
+        return jsonify([
+            {
+                'time': es.times[i], 
+                'event_state': es.snapshot(i).mean
+             } for i in range(len(es.times))])
 
 def get_predicted_observables(session_id):
     """
@@ -320,7 +339,16 @@ def get_predicted_observables(session_id):
     if not sessions[session_id].initialized:
         abort(400, 'Model not initialized')
 
-    pass
+    app.logger.debug("Get predicted states for session {}".format(session_id)) 
+    with sessions[session_id].locks['results']:
+        if sessions[session_id].results is None:
+            abort(400, 'No Completed Prediction')
+        states = sessions[session_id].results[1]['states']
+        return jsonify([
+            {
+                'time': states.times[i], 
+                'observables': sessions[session_id].model.observables(states.snapshot(i).mean)
+             } for i in range(len(states.times))])
 
 def get_predicted_toe(session_id):
     """
@@ -336,5 +364,9 @@ def get_predicted_toe(session_id):
         abort(400, f'Session {session_id} does not exist or has ended')
     if not sessions[session_id].initialized:
         abort(400, 'Model not initialized')
-
-    pass
+    
+    app.logger.debug("Get prediction for session {}".format(session_id)) 
+    with sessions[session_id].locks['results']:
+        if sessions[session_id].results is None:
+            abort(400, 'No Completed Prediction')
+        return sessions[session_id].results[1]['time of event']

@@ -49,7 +49,7 @@ class Session():
         self.moving_avg_loads = {key : [] for key in self.model.inputs}
 
         # Load Estimator
-        self.set_load_estimator(load_est_name, load_est_cfg)
+        self.set_load_estimator(load_est_name, load_est_cfg, predict_queue = False)
 
         # Initial State
         if x0 is None:
@@ -63,6 +63,14 @@ class Session():
                 self.initialized = False  
         else:
             self.set_state(x0)
+
+        # Predictor
+        try:
+            pred_class = getattr(predictors, pred_name)
+        except AttributeError:
+            abort(400, f"Invalid predictor name {pred_name}")
+        app.logger.debug(f"Creating Predictor of type {self.pred_name}")
+        self.pred = pred_class(self.model, **pred_cfg)
         
         # State Estimator
         if self.initialized:
@@ -76,33 +84,29 @@ class Session():
             except AttributeError:  
                 abort(400, f"Invalid state estimator name {state_est_name}")
 
-        # Predictor
-        try:
-            pred_class = getattr(predictors, pred_name)
-        except AttributeError:
-            abort(400, f"Invalid predictor name {pred_name}")
-        app.logger.debug(f"Creating Predictor of type {self.pred_name}")
-        self.predictor = pred_class(self.model, **pred_cfg)
-
-    def __initialize(self, x0):
+    def __initialize(self, x0, predict_queue = True):
         state_est_class = getattr(state_estimators, self.state_est_name)
         app.logger.debug(f"Creating State Estimator of type {self.state_est_name}")
         self.state_est = state_est_class(self.model, x0, **self.state_est_cfg)
 
         self.initialized = True
+        if predict_queue:
+            add_to_predict_queue(self)
 
     @property
-    def state(self):
-        pass # TODO(CT): GET STATE
+    def x(self):
+        return self.state_est.x.mean
 
     def set_state(self, x):
         # Initializes (or re-initializes) state estimator
         self.__initialize(x)
 
-    def set_load_estimator(self, name, cfg):
+    def set_load_estimator(self, name, cfg, predict_queue = True):
         self.load_est_name = name
         self.load_est_cfg = cfg
         self.load_est = build_load_est(name, cfg, self)
+        if predict_queue:
+            add_to_predict_queue(self)
 
     def add_data(self, time, inputs, outputs):
         # Add data to state estimator
@@ -112,6 +116,7 @@ class Session():
         else:
             with self.locks['estimate']:
                 self.state_est.estimate(time, inputs, outputs)
+            add_to_predict_queue(self)
     
     def to_dict(self):
         return {

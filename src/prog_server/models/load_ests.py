@@ -15,7 +15,7 @@ def Const(t, x = None, session = None, cfg = None):
     return cfg['load']
 
 def MovingAverage(t, x=None, session = None, cfg = None):
-    std = cfg['base_std'] + cfg['std_slope'] * (t - cfg['t'])
+    std = cfg.get('base_std',0.001)  + cfg.get('std_slope', 1e-4) * (t - cfg.get('t0', 0))
     load = {key : mean(session.moving_avg_loads[key]) for key in session.model.inputs} 
     return {key : normal(load[key], std) for key in load.keys()}
 
@@ -30,5 +30,5 @@ def build_load_est(name, cfg, session):
         abort(400, f"{name} is not a valid load estimation method")
     load_est_fcn = globals()[name]
     return partial(load_est_fcn,
-        loading = cfg,
+        cfg = cfg,
         session = session)
