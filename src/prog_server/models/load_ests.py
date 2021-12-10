@@ -19,10 +19,10 @@ def MovingAverage(t, x=None, session = None, cfg = None):
     load = {key : mean(session.moving_avg_loads[key]) for key in session.model.inputs} 
     return {key : normal(load[key], std) for key in load.keys()}
 
-def update_moving_avg(u, session = None, cfg = {'window_size': 10}):
+def update_moving_avg(u, session = None, cfg = {}):
     for key in session.model.inputs:
         session.moving_avg_loads[key].append(u[key])
-        if len(session.moving_avg_loads[key]) > cfg['window_size']:
+        if len(session.moving_avg_loads[key]) > cfg.get('window_size', 10):
             del session.moving_avg_loads[key][0]  # Remove first item
 
 def build_load_est(name, cfg, session):

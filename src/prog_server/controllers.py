@@ -5,6 +5,7 @@ from .models.session import Session
 from .models.load_ests import update_moving_avg
 from flask import request, abort, jsonify
 from flask import current_app as app
+import json
 
 session_count = 0
 sessions = {}
@@ -95,7 +96,7 @@ def set_state(session_id):
     
     sessions[session_id].set_state(x)
 
-def set_loading_profile(self, session_id):
+def set_loading_profile(session_id):
     """
     Set the loading profile for the session's model.
 
@@ -107,10 +108,12 @@ def set_loading_profile(self, session_id):
         abort(400, f'Session {session_id} does not exist or has ended')
 
     app.logger.debug(f"Setting loading profile for Session {session_id}")
-    #sessions[session_id].set_load_estimator(request.values['load_est_name'], request.values['load_est_cfg'])
-    pass
+    sessions[session_id].set_load_estimator(
+        request.values['type'], 
+        json.loads(request.values.get('cfg', {})))
+    return get_loading_profile(session_id)
 
-def send_data(self, session_id):
+def send_data(session_id):
     """
     Send data to the session's model.
 
@@ -133,14 +136,14 @@ def send_data(self, session_id):
         abort(400, f'Data missing for session {session_id}. Expected inputs: {session.model.inputs} and outputs: {session.model.outputs}. Received {list(values.keys())}')
 
     # Update moving average
-    update_moving_avg(inputs, session_id)
+    update_moving_avg(inputs, session, session.load_est_cfg)
 
     session.add_data(time, inputs, outputs)
 
     return '' 
 
 # Get
-def get_loading_profile(self, session_id):
+def get_loading_profile(session_id):
     """
     Get the loading profile for the session's model.
 
@@ -153,9 +156,11 @@ def get_loading_profile(self, session_id):
     if session_id not in sessions:
         abort(400, f'Session {session_id} does not exist or has ended')
 
-    return jsonify({'name': sessions[session_id].load_estimator.name, 'config': sessions[session_id].load_estimator_cfg})
+    return jsonify({
+        'type': sessions[session_id].load_est_name, 
+        'cfg': sessions[session_id].load_est_cfg})
 
-def get_initialized(self, session_id):
+def get_initialized(session_id):
     """
     Get the initialized state for the session's model.
 
@@ -170,7 +175,7 @@ def get_initialized(self, session_id):
 
     return jsonify({'initialized': sessions[session_id].initialized})
 
-def get_prediction_status(self, session_id):
+def get_prediction_status(session_id):
     """
     Get the prediction status for the session's model.
 
@@ -194,7 +199,7 @@ def get_prediction_status(self, session_id):
     }
 
     with sessions[session_id].locks['futures']:
-        for future in sessions[session_id].future:
+        for future in sessions[session_id].futures:
             if future is not None:
                 try:
                     except_msg = str(future.exception(timeout = 0))
@@ -228,7 +233,7 @@ def get_state(session_id):
     app.logger.debug(f"Getting state for Session {session_id}")
     return sessions[session_id].state_est.x.mean
 
-def get_event_state(self, session_id):
+def get_event_state(session_id):
     """
     Get the event state for the session's model.
 
@@ -247,7 +252,7 @@ def get_event_state(self, session_id):
     x = sessions[session_id].state_est.x.mean
     return sessions[session_id].model.event_state(x)
 
-def get_observables(self, session_id):
+def get_observables(session_id):
     """
     Get the observables for the session's model.
 
@@ -266,7 +271,7 @@ def get_observables(self, session_id):
     x = sessions[session_id].state_est.x.mean
     return sessions[session_id].model.observables(x)
 
-def get_predicted_states(self, session_id):
+def get_predicted_states(session_id):
     """
     Get the predicted states for the session's model.
 
@@ -283,7 +288,7 @@ def get_predicted_states(self, session_id):
 
     pass
 
-def get_predicted_event_state(self, session_id):
+def get_predicted_event_state(session_id):
     """
     Get the predicted event state for the session's model.
 
@@ -300,7 +305,7 @@ def get_predicted_event_state(self, session_id):
 
     pass
 
-def get_predicted_observables(self, session_id):
+def get_predicted_observables(session_id):
     """
     Get the predicted observables for the session's model.
 
@@ -317,7 +322,7 @@ def get_predicted_observables(self, session_id):
 
     pass
 
-def get_predicted_toe(self, session_id):
+def get_predicted_toe(session_id):
     """
     Get the predicted Time of Event (ToE) for the session's model.
 

@@ -30,7 +30,7 @@ class Session():
         self.pred_cfg = pred_cfg
         self.initialized = True
         self.results = None
-        self.futures = [None, None],
+        self.futures = [None, None]
         self.locks = {
             'estimate': Lock(),
             'execution': Lock(),
@@ -46,7 +46,7 @@ class Session():
 
         app.logger.debug(f"Creating Model of type {model_name}")
         self.model = model_class(**model_cfg)
-        self.moving_avg_loads = {key : [] for key in self.model.inputs},
+        self.moving_avg_loads = {key : [] for key in self.model.inputs}
 
         # Load Estimator
         self.set_load_estimator(load_est_name, load_est_cfg)

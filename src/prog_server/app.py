@@ -19,11 +19,11 @@ app.add_url_rule(PREFIX + '/session/<int:session_id>', methods=['DELETE'], view_
 
 # Set
 app.add_url_rule(PREFIX + '/session/<int:session_id>/state', methods=['POST'], view_func=set_state)
-app.add_url_rule(PREFIX + '/session/<int:session_id>/loading_profile', methods=['POST'], view_func=set_loading_profile)
+app.add_url_rule(PREFIX + '/session/<int:session_id>/loading', methods=['POST'], view_func=set_loading_profile)
 app.add_url_rule(PREFIX + '/session/<int:session_id>/data', methods=['POST'], view_func=send_data)
 
 # Get
-app.add_url_rule(PREFIX + '/session/<int:session_id>/loading_profile', methods=['GET'], view_func=get_loading_profile)
+app.add_url_rule(PREFIX + '/session/<int:session_id>/loading', methods=['GET'], view_func=get_loading_profile)
 app.add_url_rule(PREFIX + '/session/<int:session_id>/initialized', methods=['GET'], view_func=get_initialized)
 app.add_url_rule(PREFIX + '/session/<int:session_id>/prediction/status', methods=['GET'], view_func=get_prediction_status)
 
