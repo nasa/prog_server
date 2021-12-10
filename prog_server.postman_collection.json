@@ -266,6 +266,234 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Get Initialization Status",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/v1/session/0/initialized",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"session",
+						"0",
+						"initialized"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Loading",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/v1/session/0/loading",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"session",
+						"0",
+						"loading"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Set Loading",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "type",
+							"value": "Const",
+							"type": "text"
+						},
+						{
+							"key": "cfg",
+							"value": "{\"load\": 4}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/v1/session/0/loading",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"session",
+						"0",
+						"loading"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Prediction Status",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/v1/session/0/prediction/status",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"session",
+						"0",
+						"prediction",
+						"status"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Predicted States",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/v1/session/0/prediction/state",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"session",
+						"0",
+						"prediction",
+						"state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Predicted Events",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/v1/session/0/prediction/events",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"session",
+						"0",
+						"prediction",
+						"events"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Predicted Event States",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/v1/session/0/prediction/event_state",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"session",
+						"0",
+						"prediction",
+						"event_state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Predicted Observables",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/v1/session/0/prediction/observables",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"session",
+						"0",
+						"prediction",
+						"observables"
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }
