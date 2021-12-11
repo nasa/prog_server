@@ -1,13 +1,16 @@
 # Copyright © 2021 United States Government as represented by the Administrator of the
 # National Aeronautics and Space Administration.  All Rights Reserved.
 
-from statistics import median_low
+from numpy import cov
 from .models.session import Session
 from .models.load_ests import update_moving_avg
+from prog_algs.uncertain_data import UnweightedSamples
+from prog_algs.predictors import Prediction
 from flask import request, abort, jsonify
 from flask import current_app as app
 import json
 from concurrent.futures._base import TimeoutError
+import pickle
 
 session_count = 0
 sessions = {}
@@ -241,8 +244,24 @@ def get_state(session_id):
     if not sessions[session_id].initialized:
         abort(400, 'Model not initialized')
 
-    app.logger.debug(f"Getting state for Session {session_id}")
-    return jsonify(sessions[session_id].x)
+    mode = request.args.get('return', 'mean')
+    
+    app.logger.debug(f"Getting state for Session {session_id}. Return mode: {mode}")
+    if mode == 'mean':
+        return jsonify(sessions[session_id].state_est.x.mean)
+    elif mode == 'metrics':
+        return jsonify(sessions[session_id].state_est.x.metrics())
+    elif mode == 'multivariate_norm':
+        return jsonify(
+            {
+
+                'mean': sessions[session_id].state_est.x.mean,
+                'cov': sessions[session_id].state_est.x.cov.tolist(),
+            })
+    elif mode == 'uncertain_data':
+        return pickle.dumps(sessions[session_id].state_est.x)
+    else:
+        abort(400, f'Invalid return mode: {mode}')
 
 def get_event_state(session_id):
     """
@@ -259,9 +278,33 @@ def get_event_state(session_id):
     if not sessions[session_id].initialized:
         abort(400, 'Model not initialized')
 
-    app.logger.debug(f"Getting event state for Session {session_id}")
-    x = sessions[session_id].state_est.x.mean
-    return jsonify(sessions[session_id].model.event_state(x))
+    mode = request.args.get('return', 'mean')
+
+    app.logger.debug(f"Getting event state for Session {session_id}. Return mode: {mode}")
+    if mode == 'mean':
+        x = sessions[session_id].state_est.x.mean
+        return jsonify(sessions[session_id].model.event_state(x))
+    elif mode == 'metrics':
+        x = sessions[session_id].state_est.x.sample(100)
+        es = UnweightedSamples([sessions[session_id].model.event_state(x_) for x_ in x])
+    
+        return jsonify(es.metrics())
+    elif mode == 'multivariate_norm':
+        x = sessions[session_id].state_est.x.sample(100)
+        es = UnweightedSamples([sessions[session_id].model.event_state(x_) for x_ in x])
+
+        return jsonify(
+            {
+
+                'mean': es.mean,
+                'cov': es.cov.tolist()
+            })
+    elif mode == 'uncertain_data':
+        x = sessions[session_id].state_est.x.sample(100)
+        es = UnweightedSamples([sessions[session_id].model.event_state(x_) for x_ in x])
+        return pickle.dumps(es)
+    else:
+        abort(400, f'Invalid return mode: {mode}')
 
 def get_perf_metrics(session_id):
     """
@@ -278,9 +321,33 @@ def get_perf_metrics(session_id):
     if not sessions[session_id].initialized:
         abort(400, 'Model not initialized')
 
+    mode = request.args.get('return', 'mean')
     app.logger.debug(f"Getting Performance Metrics for Session {session_id}")
-    x = sessions[session_id].state_est.x.mean
-    return jsonify(sessions[session_id].model.observables(x))
+
+    if mode == 'mean':
+        x = sessions[session_id].state_est.x.mean
+        return jsonify(sessions[session_id].model.observables(x))
+    elif mode == 'metrics':
+        x = sessions[session_id].state_est.x.sample(100)
+        es = UnweightedSamples([sessions[session_id].model.observables(x_) for x_ in x])
+    
+        return jsonify(es.metrics())
+    elif mode == 'multivariate_norm':
+        x = sessions[session_id].state_est.x.sample(100)
+        es = UnweightedSamples([sessions[session_id].model.observables(x_) for x_ in x])
+
+        return jsonify(
+            {
+
+                'mean': es.mean,
+                'cov': es.cov.tolist()
+            })
+    elif mode == 'uncertain_data':
+        x = sessions[session_id].state_est.x.sample(100)
+        es = UnweightedSamples([sessions[session_id].model.observables(x_) for x_ in x])
+        return pickle.dumps(es)
+    else:
+        abort(400, f'Invalid return mode: {mode}')    
 
 def get_predicted_states(session_id):
     """
@@ -298,15 +365,38 @@ def get_predicted_states(session_id):
         abort(400, 'Model not initialized')
 
     app.logger.debug("Get predicted states for session {}".format(session_id)) 
+    mode = request.args.get('return', 'mean')
     with sessions[session_id].locks['results']:
         if sessions[session_id].results is None:
             abort(400, 'No Completed Prediction')
+        
         states = sessions[session_id].results[1]['states']
-        return jsonify([
+
+        if mode == 'mean':
+            return jsonify(([
             {
                 'time': states.times[i], 
                 'state': states.snapshot(i).mean
-             } for i in range(len(states.times))])
+             } for i in range(len(states.times))]))
+        elif mode == 'metrics':
+            return jsonify(([
+            {
+                'time': states.times[i], 
+                'state': states.snapshot(i).metrics()
+             } for i in range(len(states.times))]))
+        elif mode == 'multivariate_norm':
+            return jsonify(([
+            {
+                'time': states.times[i], 
+                'state': {
+                    'mean': states.snapshot(i).mean,
+                    'cov': states.snapshot(i).cov.tolist()
+                }
+             } for i in range(len(states.times))]))
+        elif mode == 'uncertain_data':
+            return pickle.dumps(states)
+        else:
+            abort(400, f'Invalid return mode: {mode}') 
 
 def get_predicted_event_state(session_id):
     """
@@ -324,15 +414,38 @@ def get_predicted_event_state(session_id):
         abort(400, 'Model not initialized')
 
     app.logger.debug("Get predicted event states for session {}".format(session_id)) 
+    mode = request.args.get('return', 'mean')
     with sessions[session_id].locks['results']:
         if sessions[session_id].results is None:
             abort(400, 'No Completed Prediction')
+        
         es = sessions[session_id].results[1]['event_states']
-        return jsonify([
+
+        if mode == 'mean':
+            return jsonify(([
             {
                 'time': es.times[i], 
-                'event_state': es.snapshot(i).mean
-             } for i in range(len(es.times))])
+                'state': es.snapshot(i).mean
+             } for i in range(len(es.times))]))
+        elif mode == 'metrics':
+            return jsonify(([
+            {
+                'time': es.times[i], 
+                'state': es.snapshot(i).metrics()
+             } for i in range(len(es.times))]))
+        elif mode == 'multivariate_norm':
+            return jsonify(([
+            {
+                'time': es.times[i], 
+                'state': {
+                    'mean': es.snapshot(i).mean,
+                    'cov': es.snapshot(i).cov.tolist()
+                }
+             } for i in range(len(es.times))]))
+        elif mode == 'uncertain_data':
+            return pickle.dumps(es)
+        else:
+            abort(400, f'Invalid return mode: {mode}')
 
 def get_predicted_perf_metrics(session_id):
     """
@@ -350,15 +463,52 @@ def get_predicted_perf_metrics(session_id):
         abort(400, 'Model not initialized')
 
     app.logger.debug("Get predicted performance metrics for session {}".format(session_id)) 
+    mode = request.args.get('return', 'mean')
     with sessions[session_id].locks['results']:
         if sessions[session_id].results is None:
             abort(400, 'No Completed Prediction')
+        
         states = sessions[session_id].results[1]['states']
-        return jsonify([
+
+        if mode == 'mean':
+            return jsonify(([
             {
                 'time': states.times[i], 
-                'performance metrics': sessions[session_id].model.observables(states.snapshot(i).mean)
-             } for i in range(len(states.times))])
+                'state': sessions[session_id].model.observables(states.snapshot(i).mean)
+             } for i in range(len(states.times))]))
+        elif mode == 'metrics':
+            pm = list()
+            for i in range(len(states.times)):
+                samples = states.snapshot(i).sample(100)
+                samples = UnweightedSamples([sessions[session_id].model.observables(x_) for x_ in samples])
+                pm.append({
+                    'time': states.times[i], 
+                    'state': samples.metrics()
+                })
+            return jsonify(pm)
+        elif mode == 'multivariate_norm':
+            pm = list()
+            for i in range(len(states.times)):
+                samples = states.snapshot(i).sample(100)
+                samples = UnweightedSamples([sessions[session_id].model.observables(x_) for x_ in samples])
+                pm.append({
+                    'time': states.times[i], 
+                    'state': {
+                        'mean': samples.mean,
+                        'cov': samples.cov.tolist()
+                    }
+                })
+            return jsonify(pm)
+        elif mode == 'uncertain_data':
+            pm = list()
+            for i in range(len(states.times)):
+                samples = states.snapshot(i).sample(100)
+                samples = UnweightedSamples([sessions[session_id].model.observables(x_) for x_ in samples])
+                pm.append(samples)
+            
+            return pickle.dumps(Prediction(states.times, pm))
+        else:
+            abort(400, f'Invalid return mode: {mode}')
 
 def get_predicted_toe(session_id):
     """
@@ -376,7 +526,23 @@ def get_predicted_toe(session_id):
         abort(400, 'Model not initialized')
     
     app.logger.debug("Get prediction for session {}".format(session_id)) 
+    mode = request.args.get('return', 'metrics')
     with sessions[session_id].locks['results']:
         if sessions[session_id].results is None:
             abort(400, 'No Completed Prediction')
-        return sessions[session_id].results[1]['time of event']
+        
+        states = sessions[session_id].results[1]['states']
+
+        if mode == 'mean':
+            return jsonify(sessions[session_id].results[1]['time of event'].mean)
+        elif mode == 'metrics':
+            return jsonify(sessions[session_id].results[1]['time of event'].metrics())
+        elif mode == 'multivariate_norm':
+            return jsonify({
+                'mean': sessions[session_id].results[1]['time of event'].mean,
+                'cov': sessions[session_id].results[1]['time of event'].cov.tolist()
+            })
+        elif mode == 'uncertain_data':
+            return pickle.dumps(sessions[session_id].results[1]['time of event'])
+        else:
+            abort(400, f'Invalid return mode: {mode}')

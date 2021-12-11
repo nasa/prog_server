@@ -93,10 +93,6 @@ class Session():
         if predict_queue:
             add_to_predict_queue(self)
 
-    @property
-    def x(self):
-        return self.state_est.x.mean
-
     def set_state(self, x):
         # Initializes (or re-initializes) state estimator
         self.__initialize(x)
