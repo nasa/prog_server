@@ -21,13 +21,11 @@ class Session():
         # Save config
         self.session_id = session_id
         self.model_name = model_name
-        self.model_cfg = model_cfg
         self.state_est_name = state_est_name
         self.state_est_cfg = state_est_cfg
         self.load_est_name = load_est_name
         self.load_est_cfg = load_est_cfg
         self.pred_name = pred_name
-        self.pred_cfg = pred_cfg
         self.initialized = True
         self.results = None
         self.futures = [None, None]
@@ -46,6 +44,7 @@ class Session():
 
         app.logger.debug(f"Creating Model of type {model_name}")
         self.model = model_class(**model_cfg)
+        self.model_cfg = self.model.parameters.data
         self.moving_avg_loads = {key : [] for key in self.model.inputs}
 
         # Load Estimator
@@ -71,6 +70,7 @@ class Session():
             abort(400, f"Invalid predictor name {pred_name}")
         app.logger.debug(f"Creating Predictor of type {self.pred_name}")
         self.pred = pred_class(self.model, **pred_cfg)
+        self.pred_cfg = self.pred.parameters
         
         # State Estimator
         if self.initialized:
