@@ -4,8 +4,9 @@
 from numpy import cov
 from .models.session import Session
 from .models.load_ests import update_moving_avg
+from prog_models.sim_result import SimResult, LazySimResult
 from prog_algs.uncertain_data import UnweightedSamples
-from prog_algs.predictors import Prediction
+from prog_algs.predictors import Prediction, UnweightedSamplesPrediction
 from flask import request, abort, jsonify
 from flask import current_app as app
 import json
@@ -443,6 +444,10 @@ def get_predicted_event_state(session_id):
                 }
              } for i in range(len(es.times))]))
         elif mode == 'uncertain_data':
+            if isinstance(es, UnweightedSamplesPrediction) and isinstance(es[0], LazySimResult):
+                # LazySimResult is un-pickleable in prog_models v1.2.2, so we need to convert it to a SimResult
+                es2 = [SimResult(event_state.times, event_state.data) for event_state in es]
+                es = UnweightedSamplesPrediction(es.times, es2)
             return pickle.dumps(es)
         else:
             abort(400, f'Invalid return mode: {mode}')
