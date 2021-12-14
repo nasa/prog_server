@@ -37,7 +37,6 @@ def new_session():
 
     session_id = session_count
     session_count += 1
-    app.logger.debug(request.form)
 
     try: 
         model_cfg = json.loads(request.form.get('model_cfg', '{}'))
@@ -139,15 +138,20 @@ def set_loading_profile(session_id):
 
     Args:
         session_id: The session ID.
-        profile: The new loading profile.
     """
     if session_id not in sessions:
         abort(400, f'Session {session_id} does not exist or has ended')
 
     app.logger.debug(f"Setting loading profile for Session {session_id}")
+
+    try:
+        load_est_cfg = json.loads(request.form.get('cfg', '{}'))
+    except json.decoder.JSONDecodeError:
+        abort(400, 'cfg must be valid JSON')
+
     sessions[session_id].set_load_estimator(
         request.values['type'], 
-        json.loads(request.values.get('cfg', {})))
+        load_est_cfg)
     return get_loading_profile(session_id)
 
 def send_data(session_id):
