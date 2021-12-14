@@ -78,10 +78,13 @@ def run_example():
             # You can also get the predicted future states of the model.
             # States are saved according to the prediction configuration parameter 'save_freq' or 'save_pts'
             # In this example we have it setup to save every 1 second.
+            # Return type is UnweightedSamplesPrediction (since we're using the monte carlo predictor)
             # See https://nasa.github.io/prog_algs
             event_states = session.get_predicted_event_state()
             print('Predicted Event States: ')
-            pprint(event_states)
+            es_means = [(event_states.times[i], event_states.snapshot(i).mean) for i in range(len(event_states.times))]
+            for time, es_mean in es_means:
+                print(f"\t{time}s: {es_mean}")
 
             # Note: you can also get the predicted future states of the model (see get_predicted_states()) or performance parameters (see get_predicted_performance_metrics())
 
