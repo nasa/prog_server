@@ -37,15 +37,37 @@ def new_session():
 
     session_id = session_count
     session_count += 1
+    app.logger.debug(request.form)
+
+    try: 
+        model_cfg = json.loads(request.form.get('model_cfg', '{}'))
+    except json.decoder.JSONDecodeError:
+        abort(400, 'model_cfg must be valid JSON')
+
+    try:
+        load_est_cfg = json.loads(request.form.get('load_est_cfg', '{}'))
+    except json.decoder.JSONDecodeError:
+        abort(400, 'load_est_cfg must be valid JSON')
+
+    try:
+        pred_cfg = json.loads(request.form.get('pred_cfg', '{}'))
+    except json.decoder.JSONDecodeError:
+        abort(400, 'pred_cfg must be valid JSON')
+
+    try:
+        state_est_cfg = json.loads(request.form.get('state_est_cfg', '{}'))
+    except json.decoder.JSONDecodeError:
+        abort(400, 'state_est_cfg must be valid JSON')
+
     sessions[session_id] = Session(session_id, model_name,
-        model_cfg = request.form.get('model.cfg', {}),
+        model_cfg = model_cfg,
         x0 = request.form.get('x0', None),
         state_est_name = request.form.get('state_est', 'ParticleFilter'),
-        state_est_cfg = request.form.get('state_est.cfg', {}),
+        state_est_cfg = state_est_cfg,
         load_est_name = request.form.get('load_est', 'MovingAverage'),
-        load_est_cfg = request.form.get('load_est.cfg', {}),
+        load_est_cfg = load_est_cfg,
         pred_name = request.form.get('pred', 'MonteCarlo'),
-        pred_cfg = request.form.get('pred.cfg', {})
+        pred_cfg = pred_cfg
     )
     
     return jsonify(sessions[session_id].to_dict())

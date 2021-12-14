@@ -32,6 +32,11 @@ class Session:
     _base_url = '/api/v1'
     def __init__(self, model, host = '127.0.0.1', port=5000, **kwargs):
         self.host = 'http://' + host + ':' + str(port) + Session._base_url
+
+        # Process kwargs with json value
+        for key, value in kwargs.items():
+            if isinstance(value, dict):
+                kwargs[key] = json.dumps(value)
         
         # Start session
         result = requests.put(self.host + '/session', data={'model_name': model, **kwargs})
