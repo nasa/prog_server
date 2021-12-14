@@ -21,7 +21,7 @@ def predict(session):
         session.results = (
             datetime.now(),
             {
-            'time of event': events.metrics(),
+            'time of event': events,
             'states': states,
             'event_states': event_states
         })
