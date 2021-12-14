@@ -244,7 +244,7 @@ def get_state(session_id):
     if not sessions[session_id].initialized:
         abort(400, 'Model not initialized')
 
-    mode = request.args.get('return', 'mean')
+    mode = request.args.get('return_format', 'mean')
     
     app.logger.debug(f"Getting state for Session {session_id}. Return mode: {mode}")
     if mode == 'mean':
@@ -278,7 +278,7 @@ def get_event_state(session_id):
     if not sessions[session_id].initialized:
         abort(400, 'Model not initialized')
 
-    mode = request.args.get('return', 'mean')
+    mode = request.args.get('return_format', 'mean')
 
     app.logger.debug(f"Getting event state for Session {session_id}. Return mode: {mode}")
     if mode == 'mean':
@@ -321,7 +321,7 @@ def get_perf_metrics(session_id):
     if not sessions[session_id].initialized:
         abort(400, 'Model not initialized')
 
-    mode = request.args.get('return', 'mean')
+    mode = request.args.get('return_format', 'mean')
     app.logger.debug(f"Getting Performance Metrics for Session {session_id}")
 
     if mode == 'mean':
@@ -365,7 +365,7 @@ def get_predicted_states(session_id):
         abort(400, 'Model not initialized')
 
     app.logger.debug("Get predicted states for session {}".format(session_id)) 
-    mode = request.args.get('return', 'mean')
+    mode = request.args.get('return_format', 'mean')
     with sessions[session_id].locks['results']:
         if sessions[session_id].results is None:
             abort(400, 'No Completed Prediction')
@@ -414,7 +414,7 @@ def get_predicted_event_state(session_id):
         abort(400, 'Model not initialized')
 
     app.logger.debug("Get predicted event states for session {}".format(session_id)) 
-    mode = request.args.get('return', 'mean')
+    mode = request.args.get('return_format', 'mean')
     with sessions[session_id].locks['results']:
         if sessions[session_id].results is None:
             abort(400, 'No Completed Prediction')
@@ -463,7 +463,7 @@ def get_predicted_perf_metrics(session_id):
         abort(400, 'Model not initialized')
 
     app.logger.debug("Get predicted performance metrics for session {}".format(session_id)) 
-    mode = request.args.get('return', 'mean')
+    mode = request.args.get('return_format', 'mean')
     with sessions[session_id].locks['results']:
         if sessions[session_id].results is None:
             abort(400, 'No Completed Prediction')
@@ -526,7 +526,7 @@ def get_predicted_toe(session_id):
         abort(400, 'Model not initialized')
     
     app.logger.debug("Get prediction for session {}".format(session_id)) 
-    mode = request.args.get('return', 'metrics')
+    mode = request.args.get('return_format', 'metrics')
     with sessions[session_id].locks['results']:
         if sessions[session_id].results is None:
             abort(400, 'No Completed Prediction')
