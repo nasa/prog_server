@@ -8,7 +8,7 @@ import pickle
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
-class PaaSSession:
+class Session:
     """
     Create a new Session in `prog_server`.
 
@@ -26,17 +26,20 @@ class PaaSSession:
         pred_cfg (dict, optional): Configuration for prediction algorithm.
 
     Use:
-        session = PaaSSession(**config)
+        session = prog_client.Session(**config)
     """
 
     _base_url = '/api/v1'
     def __init__(self, model, host = '127.0.0.1', port=5000, **kwargs):
-        self.host = 'http://' + host + ':' + str(port) + PaaSSession._base_url
+        self.host = 'http://' + host + ':' + str(port) + Session._base_url
         
         # Start session
         result = requests.put(self.host + '/session', data={'model_name': model, **kwargs})
         self.session_id = json.loads(result.text)['session_id']
         self.host += "/session/" + str(self.session_id)
+
+    def __str__(self):
+        return f'PaaS Session {self.session_id}'
 
     def is_init(self):
         """Check if session has been initialized
