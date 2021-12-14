@@ -35,7 +35,7 @@ class Session:
 
         # Process kwargs with json value
         for key, value in kwargs.items():
-            if isinstance(value, dict):
+            if isinstance(value, dict) or isinstance(value, list):
                 kwargs[key] = json.dumps(value)
         
         # Start session
@@ -66,6 +66,17 @@ class Session:
             session.send_data(10.2, t=32.0, v=3.914, i=2)
         """
         result = requests.post(self.host + '/data', data={'time': time, **kwargs})
+        # TODO(CT): Check result code
+
+    def send_loading(self, type: str, cfg: dict):
+        """
+        Set the future loading profile profile. 
+
+        Args: 
+            type (str): Type of loading profile
+            cfg (dict): Configuration of loading profile
+        """
+        result = requests.post(self.host + '/loading', data={'type': type, 'cfg': json.dumps(cfg)})
         # TODO(CT): Check result code
 
     def get_state(self):
