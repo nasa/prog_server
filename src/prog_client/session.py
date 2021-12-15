@@ -39,7 +39,7 @@ class Session:
                 kwargs[key] = json.dumps(value)
         
         # Start session
-        result = requests.put(self.host + '/session', data={'model_name': model, **kwargs})
+        result = requests.put(self.host + '/session', data={'model': model, **kwargs})
         self.session_id = json.loads(result.text)['session_id']
         self.host += "/session/" + str(self.session_id)
 

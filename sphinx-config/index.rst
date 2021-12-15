@@ -13,7 +13,9 @@ If you are new to this package, see `getting started <getting_started.html>`__.
    :maxdepth: 2
 
    getting_started
+   load_ests
    prog_client
+   prog_server_api
    ProgModels <https://nasa.github.io/prog_models>
    ProgAlgs <https://nasa.github.io/prog_algs>
    dev_guide

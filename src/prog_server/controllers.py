@@ -30,10 +30,10 @@ def new_session():
     global session_count
     app.logger.debug("Creating New Session")
 
-    if 'model_name' not in request.form:
-        abort(400, 'model_name must be specified in request body')
+    if 'model' not in request.form:
+        abort(400, 'model must be specified in request body')
 
-    model_name = request.form['model_name'] # Replace with actual type name
+    model_name = request.form['model'] # Replace with actual type name
 
     session_id = session_count
     session_count += 1
