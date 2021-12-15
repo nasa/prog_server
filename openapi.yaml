@@ -102,39 +102,7 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
-                  - type: object
-                    description: JSON representing system state, where keys are from model.state
-                    example:
-                      {'state1': 3.2, 'state2': 1.75}
-                  - type: object
-                    description: JSON representing statistics for the system state distribution
-                    example: 
-                     {
-                      'state1': {...},
-                      'state2': {...}
-                     }
-                  - type: object
-                    description: JSON representing mean and covariance of a normal multivariate distribution approximating the system state
-                    properties: 
-                      mean: 
-                        type: object
-                      cov: 
-                        type: array
-                        items:
-                          type: array
-                          items:
-                            type: integer
-                    example:
-                      {
-                        "mean": {
-                          "state1": 1.2, 
-                          "state2": 2.5
-                        }, 
-                        "cov": [[0.15, 0.003], [-0.025, 0.27]]
-                      }
-                  - type: object
-                    description: bytestream of the pickled [prog_models.uncertain_data.UncertainData](https://nasa.github.io/prog_algs/uncertain_data.html) object 
+                $ref: "#/components/schemas/StateReturn" 
         "400":
           description: Session not active, or model not initialized 
   /v1/session/{id}/event_state:
@@ -158,39 +126,7 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
-                  - type: object
-                    description: JSON representing event state, where keys are from model.events
-                    example:
-                      {'state1': 3.2, 'state2': 1.75}
-                  - type: object
-                    description: JSON representing statistics for the event state distribution
-                    example: 
-                     {
-                      'state1': {...},
-                      'state2': {...}
-                     }
-                  - type: object
-                    description: JSON representing mean and covariance of a normal multivariate distribution approximating the event state
-                    properties: 
-                      mean: 
-                        type: object
-                      cov: 
-                        type: array
-                        items:
-                          type: array
-                          items:
-                            type: integer
-                    example:
-                      {
-                        "mean": {
-                          "state1": 1.2, 
-                          "state2": 2.5
-                        }, 
-                        "cov": [[0.15, 0.003], [-0.025, 0.27]]
-                      }
-                  - type: object
-                    description: bytestream of the pickled [prog_models.uncertain_data.UncertainData](https://nasa.github.io/prog_algs/uncertain_data.html) object 
+                $ref: "#/components/schemas/StateReturn" 
         "400":
           description: Session not active, or model not initialized 
   /v1/session/{id}/performance_metrics:
@@ -214,39 +150,79 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
-                  - type: object
-                    description: JSON representing performance parameters, where keys are from model.observables
-                    example:
-                      {'state1': 3.2, 'state2': 1.75}
-                  - type: object
-                    description: JSON representing statistics for the event state distribution
-                    example: 
-                     {
-                      'state1': {...},
-                      'state2': {...}
-                     }
-                  - type: object
-                    description: JSON representing mean and covariance of a normal multivariate distribution approximating the event state
-                    properties: 
-                      mean: 
-                        type: object
-                      cov: 
-                        type: array
-                        items:
-                          type: array
-                          items:
-                            type: integer
-                    example:
-                      {
-                        "mean": {
-                          "state1": 1.2, 
-                          "state2": 2.5
-                        }, 
-                        "cov": [[0.15, 0.003], [-0.025, 0.27]]
-                      }
-                  - type: object
-                    description: bytestream of the pickled [prog_models.uncertain_data.UncertainData](https://nasa.github.io/prog_algs/uncertain_data.html) objec
+                $ref: "#/components/schemas/StateReturn"
+        "400":
+          description: Session not active, or model not initialized 
+  /v1/session/{id}/prediction/state:
+    parameters:
+      - name: id
+        in: path 
+        required: true
+        schema:
+          type: integer
+      - name: return_format
+        description: Format for the returned state
+        in: query
+        required: false
+        schema:
+          $ref: "#/components/schemas/ReturnFormat"
+    get:
+      description: Get the predicted state at save points (defined by pred_cfg['save_pts'] or pred_cfg['save_freq'])
+      responses:
+        "200":
+          description: Okay response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Prediction"
+        "400":
+          description: Session not active, or model not initialized 
+  /v1/session/{id}/prediction/event_state:
+    parameters:
+      - name: id
+        in: path 
+        required: true
+        schema:
+          type: integer
+      - name: return_format
+        description: Format for the returned state
+        in: query
+        required: false
+        schema:
+          $ref: "#/components/schemas/ReturnFormat"
+    get:
+      description: Get the predicted event state at save points (defined by pred_cfg['save_pts'] or pred_cfg['save_freq'])
+      responses:
+        "200":
+          description: Okay response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Prediction"
+        "400":
+          description: Session not active, or model not initialized 
+  /v1/session/{id}/prediction/performance_metrics:
+    parameters:
+      - name: id
+        in: path 
+        required: true
+        schema:
+          type: integer
+      - name: return_format
+        description: Format for the returned state
+        in: query
+        required: false
+        schema:
+          $ref: "#/components/schemas/ReturnFormat"
+    get:
+      description: Get the predicted performance metrics at save points (defined by pred_cfg['save_pts'] or pred_cfg['save_freq'])
+      responses:
+        "200":
+          description: Okay response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Prediction"
         "400":
           description: Session not active, or model not initialized 
   /v1/session/{id}/prediction/events:
@@ -269,7 +245,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Prediction"
+                $ref: "#/components/schemas/StateReturn"
         "400":
           description: Session not active, or model not initialized 
   /v1/session/{id}/prediction/status:
@@ -314,6 +290,45 @@ paths:
 
 components:
   schemas:
+    StateReturn:
+      oneOf:
+        - type: object
+          description: JSON representing requested variable (e.g., state, event state, performance metric)
+          example:
+            {'state1': 3.2, 'state2': 1.75}
+        - type: object
+          description: JSON representing statistics for the requested variable (e.g., state, event state, performance metric)
+          additionalProperties:
+            type: object
+            properties:
+              schema: 
+                $ref: "#/components/schemas/Stats"
+          example: 
+            {
+            'state1': {...},
+            'state2': {...}
+            }
+        - type: object
+          description: JSON representing mean and covariance of a normal multivariate distribution approximating the requested variable (e.g., state, event state, performance metric)
+          properties: 
+            mean: 
+              type: object
+            cov: 
+              type: array
+              items:
+                type: array
+                items:
+                  type: integer
+          example:
+            {
+              "mean": {
+                "state1": 1.2, 
+                "state2": 2.5
+              }, 
+              "cov": [[0.15, 0.003], [-0.025, 0.27]]
+            }
+        - type: object
+          description: bytestream of the pickled [prog_models.uncertain_data.UncertainData](https://nasa.github.io/prog_algs/uncertain_data.html) object
     SessionConfiguration:
       type: object
       required:
@@ -448,20 +463,17 @@ components:
               nullable: true
     
     Prediction:
-      type: object 
-      properties:
-        final event state:
-          type: object 
-          additionalProperties: 
-            type: object 
+      type: array
+      items: 
+        type: object
+        properties:
+          time:
+            type: integer
+          state:
+            type: object
             properties:
               schema:
-                $ref: "#/components/schemas/Stats"
-        time of event: 
-          type: object 
-          properties:
-            schema:
-              $ref: "#/components/schemas/Stats"
+                $ref: "#/components/schemas/StateReturn"
         
     PredictionStatus:
       type: object
