@@ -3,6 +3,7 @@
 
 from ..app import app
 from multiprocessing import Process
+import requests
 
 class ProgServer():
     """
@@ -36,5 +37,18 @@ class ProgServer():
     def stop(self) -> None:
         """Stop the server process"""
         self.process.terminate()
+
+    def is_running(self):
+        """Check if the server is running"""
+        if not self.process:
+            return False
+        if (isinstance(self.process, Process) and self.process.is_alive()) or not isinstance(self.process, Process):
+            url = "http://127.0.0.1:5000/api/v1/"
+            try:
+                requests.request("GET", url)
+                return True
+            except requests.exceptions.ConnectionError:
+                return False
+        return False
 
 server = ProgServer()

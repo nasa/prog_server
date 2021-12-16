@@ -30,3 +30,9 @@ def stop():
     Stop the server.
     """
     server.stop()
+
+def is_running():
+    """
+    Check if the server is running.
+    """
+    return server.is_running()
