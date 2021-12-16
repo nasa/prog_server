@@ -9,6 +9,9 @@ class ProgServer():
     This class is a wrapper for the flask server.
     """
 
+    def __init__(self):
+        self.process = None
+
     def run(self, host='127.0.0.1', port=5000) -> None:
         """Run the server (blocking)
 
@@ -25,7 +28,7 @@ class ProgServer():
         Args:
             **kwargs: Arbitrary keyword arguments. See `run` for details.
         """
-        if self.process.is_alive():
+        if self.process and self.process.is_alive():
             raise RuntimeError('Server already running')
         self.process = Process(target=self.run, kwargs=kwargs)
         self.process.start()
