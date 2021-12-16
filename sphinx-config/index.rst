@@ -15,7 +15,7 @@ If you are new to this package, see `getting started <getting_started.html>`__.
    getting_started
    load_ests
    prog_client
-   prog_server_api
+   Prog Server API <https://app.swaggerhub.com/apis-docs/teubert/prog_server/1.0.0-oas3>
    ProgModels <https://nasa.github.io/prog_models>
    ProgAlgs <https://nasa.github.io/prog_algs>
    dev_guide
