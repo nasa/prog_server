@@ -83,49 +83,58 @@ class Session:
         """Get the model state 
 
         Returns:
+            float: Time of state estimate
             UncertainData: Model state
         """
         result = requests.get(self.host + '/state', params={'return_format': 'uncertain_data'}, stream='True')
-        return pickle.load(result.raw)
+        result = pickle.load(result.raw)
+        return (result['time'], result['state'])
 
     def get_predicted_state(self):
         """Get the predicted model state 
 
         Returns:
+            float: Time of prediction
             list[dict]: Predicted model state at save points
         """
         result = requests.get(self.host + '/prediction/state', params={'return_format': 'uncertain_data'}, stream='True')
-        return pickle.load(result.raw)
+        result = pickle.load(result.raw)
+        return (result['prediction_time'], result['states'])
 
     def get_event_state(self):
         """Get the current event state
 
         Returns:
+            float: Time of state estimate
             dict: Event state
         """
         result = requests.get(self.host + '/event_state', params={'return_format': 'uncertain_data'}, stream='True')
-        print(result.raw)
-        return pickle.load(result.raw)
+        result =  pickle.load(result.raw)
+        return (result['time'], result['event_state'])
 
     def get_predicted_event_state(self):
         """Get the predicted event state
 
         Returns:
+            float: Time of prediction
             list[dict]: predicted Event state
         """
         result = requests.get(self.host + '/prediction/event_state', params={'return_format': 'uncertain_data'}, stream='True')
-        return pickle.load(result.raw)
+        result = pickle.load(result.raw)
+        return (result['prediction_time'], result['event_states'])
 
     def get_predicted_toe(self):
         """Get the prediction
 
         Returns:
+            float: Time of prediction
             dict: Prediction
 
         See also: get_prediction_status
         """
         result = requests.get(self.host + '/prediction/events', params={'return_format': 'uncertain_data'}, stream='True')
-        return pickle.load(result.raw)
+        result = pickle.load(result.raw)
+        return (result['prediction_time'], result['time_of_event'])
 
     def get_prediction_status(self):
         """Get the status of the prediction
@@ -140,22 +149,20 @@ class Session:
         """Get current performance metrics
 
         Returns:
+            float: Time of state estimate
             dict: Performance Metrics
         """
         result = requests.get(self.host + '/performance_metrics', params={'return_format': 'uncertain_data'}, stream='True')
-        return pickle.load(result.raw)
+        result = pickle.load(result.raw)
+        return (result['time'], result['performance_metrics'])
 
     def get_predicted_performance_metrics(self):
         """Get predicted performance metrics
 
-        Args:
-            return_format (str, optional): Format of returned state. Options include:
-                * 'mean' (default): Return mean of state
-                * 'multivariate_norm': Return mean and covariance of state
-                * 'metrics': Return metrics of state
-
         Returns:
+            float: Time of prediction
             list[dict]: Predicted performance Metrics
         """
         result = requests.get(self.host + '/prediction/performance_metrics', params={'return_format': 'uncertain_data'}, stream='True')
-        return pickle.load(result.raw)
+        result = pickle.load(result.raw)
+        return (result['prediction_time'], result['performance_metrics'])

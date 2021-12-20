@@ -13,6 +13,7 @@ def predict(session):
     with session.locks['execution']:
         with session.locks['estimate']:
             x = deepcopy(session.state_est.x)
+            time = session.state_est.t
         
         (_, _, states, _, event_states, events) = session.pred.predict(x, session.load_est, dt=0.1)
 
@@ -20,6 +21,7 @@ def predict(session):
         session.results = (
             datetime.now(),
             {
+            'time': time,
             'time of event': events,
             'states': states,
             'event_states': event_states

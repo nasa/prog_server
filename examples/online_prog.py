@@ -70,8 +70,8 @@ def run_example():
             # Get prediction
             # Prediction is returned as a type uncertain_data, so you can manipulate it like that datatype.
             # See https://nasa.github.io/prog_algs/uncertain_data.html
-            prediction = session.get_predicted_toe()
-            print('Predicted Toe: ')
+            t, prediction = session.get_predicted_toe()
+            print(f'Predicted Toe (using state from {t}s): ')
             pprint(prediction.mean)
 
             # Get Predicted future states
@@ -80,8 +80,8 @@ def run_example():
             # In this example we have it setup to save every 1 second.
             # Return type is UnweightedSamplesPrediction (since we're using the monte carlo predictor)
             # See https://nasa.github.io/prog_algs
-            event_states = session.get_predicted_event_state()
-            print('Predicted Event States: ')
+            t, event_states = session.get_predicted_event_state()
+            print(f'Predicted Event States (using state from {t}s): ')
             es_means = [(event_states.times[i], event_states.snapshot(i).mean) for i in range(len(event_states.times))]
             for time, es_mean in es_means:
                 print(f"\t{time}s: {es_mean}")

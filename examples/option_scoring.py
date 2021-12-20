@@ -67,7 +67,7 @@ def run_example():
     
     # Step 4: Get the results
     print('Getting results')
-    results = [session.get_predicted_toe() for session in sessions]
+    results = [session.get_predicted_toe()[1] for session in sessions]
 
     # Step 5: Compare results
     print('\nComparing results')
@@ -80,19 +80,19 @@ def run_example():
         if mean_toe < best_toe:
             best_toe = mean_toe
             best_plan = i
-    print(f'Best option: Option {best_plan}')
+    print(f'Best option using method 1: Option {best_plan}')
 
     print('\nSOC at point of interest (2000 sec):')
     best_soc = 0
     best_plan = None
-    soc = [session.get_predicted_event_state() for session in sessions]
+    soc = [session.get_predicted_event_state()[1] for session in sessions]
     for i in range(len(soc)):
         mean_soc = soc[i].snapshot(-1).mean['EOD']
         print(f'\tOption {i}: {mean_soc:0.3f} SOC')
         if mean_soc > best_soc:
             best_soc = mean_soc
             best_plan = i
-    print(f'Best option: Option {best_plan}')
+    print(f'Best option using method 2: Option {best_plan}')
 
     # Other metrics can be used as well, like probability of mission success given a certain mission time, uncertainty in ToE estimate, final state at end of mission, etc. 
 

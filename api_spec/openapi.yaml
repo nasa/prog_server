@@ -102,7 +102,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StateReturn" 
+                $ref: "#/components/schemas/StateReturnWithTime" 
         "400":
           description: Session not active, or model not initialized 
   /v1/session/{id}/event_state:
@@ -126,7 +126,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StateReturn" 
+                $ref: "#/components/schemas/StateReturnWithTime" 
         "400":
           description: Session not active, or model not initialized 
   /v1/session/{id}/performance_metrics:
@@ -150,7 +150,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StateReturn"
+                $ref: "#/components/schemas/StateReturnWithTime"
         "400":
           description: Session not active, or model not initialized 
   /v1/session/{id}/prediction/state:
@@ -174,7 +174,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Prediction"
+                $ref: "#/components/schemas/PredictionWithTime"
         "400":
           description: Session not active, or model not initialized 
   /v1/session/{id}/prediction/event_state:
@@ -198,7 +198,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Prediction"
+                $ref: "#/components/schemas/PredictionWithTime"
         "400":
           description: Session not active, or model not initialized 
   /v1/session/{id}/prediction/performance_metrics:
@@ -222,7 +222,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Prediction"
+                $ref: "#/components/schemas/PredictionWithTime"
         "400":
           description: Session not active, or model not initialized 
   /v1/session/{id}/prediction/events:
@@ -245,7 +245,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StateReturn"
+                $ref: "#/components/schemas/ToEPrediction"
         "400":
           description: Session not active, or model not initialized 
   /v1/session/{id}/prediction/status:
@@ -290,6 +290,44 @@ paths:
 
 components:
   schemas:
+    ToEPrediction:
+      type: object
+      required: 
+      properties:
+        prediction_time:
+          type: number
+          description: Time at which the prediction was generated
+        time_of_event:
+          type: object
+          properties:
+            schema:
+              $ref: "#/components/schemas/StateReturn"
+
+    StateReturnWithTime:
+      type: object
+      description: The requested property with the time it was calculated
+      required:
+        - time
+      properties:
+        time:
+          type: number
+          description: Time at which state was calculated (in simulation time). Corresponds to the time provided in the last sent data before this state estimate. 
+        event_state:
+          type: object
+          properties:
+            schema:
+              $ref: "#/components/schemas/StateReturn"
+        performance_metrics:
+          type: object
+          properties:
+            schema:
+              $ref: "#/components/schemas/StateReturn"
+        state:
+          type: object
+          properties:
+            schema:
+              $ref: "#/components/schemas/StateReturn"
+           
     StateReturn:
       oneOf:
         - type: object
@@ -462,6 +500,31 @@ components:
               type: number
               nullable: true
     
+    PredictionWithTime:
+      type: object
+      description: The predicted property with the time at which the prediciton was generated.
+      required:
+        - prediction_time
+      properties:
+        prediction_time: 
+          type: number
+          description: The time at which the prediction was generated.
+        event_states:
+          type: object
+          properties:
+            schema:
+              $ref: "#/components/schemas/Prediction"
+        states:
+          type: object
+          properties:
+            schema:
+              $ref: "#/components/schemas/Prediction"
+        performance_metrics:
+          type: object
+          properties:
+            schema:
+              $ref: "#/components/schemas/Prediction"
+
     Prediction:
       type: array
       items: 

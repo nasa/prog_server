@@ -85,6 +85,7 @@ class Session():
                 abort(400, f"Invalid state estimator name {state_est_name}")
 
     def __initialize(self, x0, predict_queue = True):
+        app.logger.debug("Initializing...")
         state_est_class = getattr(state_estimators, self.state_est_name)
         app.logger.debug(f"Creating State Estimator of type {self.state_est_name}")
         self.state_est = state_est_class(self.model, x0, **self.state_est_cfg)
@@ -94,10 +95,12 @@ class Session():
             add_to_predict_queue(self)
 
     def set_state(self, x):
+        app.logger.debug(f"Setting state to {x}")
         # Initializes (or re-initializes) state estimator
         self.__initialize(x)
 
     def set_load_estimator(self, name, cfg, predict_queue = True):
+        app.logger.debug(f"Setting load estimator to {name}")
         self.load_est_name = name
         self.load_est_cfg = cfg
         self.load_est = build_load_est(name, cfg, self)
@@ -110,6 +113,7 @@ class Session():
             x0 = self.model.initialize(inputs, outputs)
             self.__initialize(x0)
         else:
+            app.logger.debug("Adding data to state estimator")
             with self.locks['estimate']:
                 self.state_est.estimate(time, inputs, outputs)
             add_to_predict_queue(self)

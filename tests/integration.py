@@ -22,18 +22,28 @@ class IntegrationTest(unittest.TestCase):
         from prog_models.models import ThrownObject
         session = prog_client.Session('ThrownObject', state_est_cfg={'x0_uncertainty': 0})
         m = ThrownObject()  # For comparison
-        x = session.get_state()
+        (_, x) = session.get_state()
         x0 = m.initialize()
         for key, value in x.mean.items():
             self.assertAlmostEqual(value, x0[key])
         
-        es = session.get_event_state()
+        (_, es) = session.get_event_state()
         es0 = m.event_state(x0)
         for key, value in es.mean.items():
             self.assertAlmostEqual(value, es0[key])
 
-        pm = session.get_performance_metrics()
+        (_, pm) = session.get_performance_metrics()
         self.assertDictEqual(pm.mean, {})
+
+        for i in range(10):
+            x0 = m.next_state(x0, {}, 0.1)
+            print("x0", x0)
+            session.send_data(i/10.0, **m.output(x0))
+            time.sleep(0.1)
+
+        time.sleep(1)
+        print(session.get_state())
+
    
     @classmethod
     def tearDownClass(cls):

@@ -274,21 +274,27 @@ def get_state(session_id):
     mode = request.args.get('return_format', 'mean')
     
     app.logger.debug(f"Getting state for Session {session_id}. Return mode: {mode}")
-    if mode == 'mean':
-        return jsonify(sessions[session_id].state_est.x.mean)
-    elif mode == 'metrics':
-        return jsonify(sessions[session_id].state_est.x.metrics())
-    elif mode == 'multivariate_norm':
-        return jsonify(
-            {
+    with sessions[session_id].locks['estimate']:
+        if mode == 'mean':
+            state = sessions[session_id].state_est.x.mean
+        elif mode == 'metrics':
+            state = sessions[session_id].state_est.x.metrics()
+        elif mode == 'multivariate_norm':
+            state = {
 
-                'mean': sessions[session_id].state_est.x.mean,
-                'cov': sessions[session_id].state_est.x.cov.tolist(),
-            })
-    elif mode == 'uncertain_data':
-        return pickle.dumps(sessions[session_id].state_est.x)
-    else:
-        abort(400, f'Invalid return mode: {mode}')
+                    'mean': sessions[session_id].state_est.x.mean,
+                    'cov': sessions[session_id].state_est.x.cov.tolist(),
+                }
+        elif mode == 'uncertain_data':
+            return pickle.dumps({
+                "time": sessions[session_id].state_est.t,
+                "state": sessions[session_id].state_est.x
+                })
+        else:
+            abort(400, f'Invalid return mode: {mode}')
+        return jsonify({
+            "time": sessions[session_id].state_est.t,
+            "state": state})
 
 def get_event_state(session_id):
     """
@@ -308,30 +314,33 @@ def get_event_state(session_id):
     mode = request.args.get('return_format', 'mean')
 
     app.logger.debug(f"Getting event state for Session {session_id}. Return mode: {mode}")
-    if mode == 'mean':
-        x = sessions[session_id].state_est.x.mean
-        return jsonify(sessions[session_id].model.event_state(x))
-    elif mode == 'metrics':
-        x = sessions[session_id].state_est.x.sample(100)
-        es = UnweightedSamples([sessions[session_id].model.event_state(x_) for x_ in x])
-    
-        return jsonify(es.metrics())
-    elif mode == 'multivariate_norm':
-        x = sessions[session_id].state_est.x.sample(100)
-        es = UnweightedSamples([sessions[session_id].model.event_state(x_) for x_ in x])
+    with sessions[session_id].locks['estimate']:
+        if mode == 'mean':
+            x = sessions[session_id].state_est.x.mean
+            es = sessions[session_id].model.event_state(x)
+        elif mode == 'metrics':
+            x = sessions[session_id].state_est.x.sample(100)
+            es = UnweightedSamples([sessions[session_id].model.event_state(x_) for x_ in x])
+            es = es.metrics()
+        elif mode == 'multivariate_norm':
+            x = sessions[session_id].state_est.x.sample(100)
+            es = UnweightedSamples([sessions[session_id].model.event_state(x_) for x_ in x])
+            es = {
+                    'mean': es.mean,
+                    'cov': es.cov.tolist()
+                }
+        elif mode == 'uncertain_data':
+            x = sessions[session_id].state_est.x.sample(100)
+            es = UnweightedSamples([sessions[session_id].model.event_state(x_) for x_ in x])
+            return pickle.dumps({
+                "time": sessions[session_id].state_est.t,
+                "event_state": es})
+        else:
+            abort(400, f'Invalid return mode: {mode}')
 
-        return jsonify(
-            {
-
-                'mean': es.mean,
-                'cov': es.cov.tolist()
-            })
-    elif mode == 'uncertain_data':
-        x = sessions[session_id].state_est.x.sample(100)
-        es = UnweightedSamples([sessions[session_id].model.event_state(x_) for x_ in x])
-        return pickle.dumps(es)
-    else:
-        abort(400, f'Invalid return mode: {mode}')
+        return jsonify({
+            "time": sessions[session_id].state_est.t,
+            "event_state": es})
 
 def get_perf_metrics(session_id):
     """
@@ -351,30 +360,33 @@ def get_perf_metrics(session_id):
     mode = request.args.get('return_format', 'mean')
     app.logger.debug(f"Getting Performance Metrics for Session {session_id}")
 
-    if mode == 'mean':
-        x = sessions[session_id].state_est.x.mean
-        return jsonify(sessions[session_id].model.observables(x))
-    elif mode == 'metrics':
-        x = sessions[session_id].state_est.x.sample(100)
-        es = UnweightedSamples([sessions[session_id].model.observables(x_) for x_ in x])
-    
-        return jsonify(es.metrics())
-    elif mode == 'multivariate_norm':
-        x = sessions[session_id].state_est.x.sample(100)
-        es = UnweightedSamples([sessions[session_id].model.observables(x_) for x_ in x])
+    with sessions[session_id].locks['estimate']:
+        if mode == 'mean':
+            x = sessions[session_id].state_est.x.mean
+            pm = sessions[session_id].model.observables(x)
+        elif mode == 'metrics':
+            x = sessions[session_id].state_est.x.sample(100)
+            es = UnweightedSamples([sessions[session_id].model.observables(x_) for x_ in x])
+            pm = es.metrics()
+        elif mode == 'multivariate_norm':
+            x = sessions[session_id].state_est.x.sample(100)
+            es = UnweightedSamples([sessions[session_id].model.observables(x_) for x_ in x])
+            pm = {
+                    'mean': es.mean,
+                    'cov': es.cov.tolist()
+                }
+        elif mode == 'uncertain_data':
+            x = sessions[session_id].state_est.x.sample(100)
+            pm = UnweightedSamples([sessions[session_id].model.observables(x_) for x_ in x])
+            return pickle.dumps({
+                "time": sessions[session_id].state_est.t,
+                "performance_metrics": pm})
+        else:
+            abort(400, f'Invalid return mode: {mode}') 
 
-        return jsonify(
-            {
-
-                'mean': es.mean,
-                'cov': es.cov.tolist()
-            })
-    elif mode == 'uncertain_data':
-        x = sessions[session_id].state_est.x.sample(100)
-        es = UnweightedSamples([sessions[session_id].model.observables(x_) for x_ in x])
-        return pickle.dumps(es)
-    else:
-        abort(400, f'Invalid return mode: {mode}')    
+        return jsonify({
+            "time": sessions[session_id].state_est.t,
+            "performance_metrics": pm})   
 
 def get_predicted_states(session_id):
     """
@@ -400,30 +412,33 @@ def get_predicted_states(session_id):
         states = sessions[session_id].results[1]['states']
 
         if mode == 'mean':
-            return jsonify(([
-            {
+            states = [{
                 'time': states.times[i], 
                 'state': states.snapshot(i).mean
-             } for i in range(len(states.times))]))
+             } for i in range(len(states.times))]
         elif mode == 'metrics':
-            return jsonify(([
-            {
+            states = [{
                 'time': states.times[i], 
                 'state': states.snapshot(i).metrics()
-             } for i in range(len(states.times))]))
+             } for i in range(len(states.times))]
         elif mode == 'multivariate_norm':
-            return jsonify(([
-            {
+            states = [{
                 'time': states.times[i], 
                 'state': {
                     'mean': states.snapshot(i).mean,
                     'cov': states.snapshot(i).cov.tolist()
                 }
-             } for i in range(len(states.times))]))
+             } for i in range(len(states.times))]
         elif mode == 'uncertain_data':
-            return pickle.dumps(states)
+            return pickle.dumps({
+                "prediction_time": sessions[session_id].results[1]['time'],
+                "states": states})
         else:
             abort(400, f'Invalid return mode: {mode}') 
+        
+        return jsonify({
+            "prediction_time": sessions[session_id].results[1]['time'],
+            "states": states})
 
 def get_predicted_event_state(session_id):
     """
@@ -449,34 +464,37 @@ def get_predicted_event_state(session_id):
         es = sessions[session_id].results[1]['event_states']
 
         if mode == 'mean':
-            return jsonify(([
-            {
+            event_states = [{
                 'time': es.times[i], 
                 'state': es.snapshot(i).mean
-             } for i in range(len(es.times))]))
+             } for i in range(len(es.times))]
         elif mode == 'metrics':
-            return jsonify(([
-            {
+            event_states = [{
                 'time': es.times[i], 
                 'state': es.snapshot(i).metrics()
-             } for i in range(len(es.times))]))
+             } for i in range(len(es.times))]
         elif mode == 'multivariate_norm':
-            return jsonify(([
-            {
+            event_states = [{
                 'time': es.times[i], 
                 'state': {
                     'mean': es.snapshot(i).mean,
                     'cov': es.snapshot(i).cov.tolist()
                 }
-             } for i in range(len(es.times))]))
+             } for i in range(len(es.times))]
         elif mode == 'uncertain_data':
             if isinstance(es, UnweightedSamplesPrediction) and isinstance(es[0], LazySimResult):
                 # LazySimResult is un-pickleable in prog_models v1.2.2, so we need to convert it to a SimResult
                 es2 = [SimResult(event_state.times, event_state.data) for event_state in es]
                 es = UnweightedSamplesPrediction(es.times, es2)
-            return pickle.dumps(es)
+            return pickle.dumps({
+                'prediction_time': sessions[session_id].results[1]['time'],
+                'event_states': es})
         else:
             abort(400, f'Invalid return mode: {mode}')
+
+        return jsonify({
+            "prediction_time": sessions[session_id].results[1]['time'],
+            "event_states": event_states})
 
 def get_predicted_perf_metrics(session_id):
     """
@@ -502,11 +520,10 @@ def get_predicted_perf_metrics(session_id):
         states = sessions[session_id].results[1]['states']
 
         if mode == 'mean':
-            return jsonify(([
-            {
+            pm = [{
                 'time': states.times[i], 
                 'state': sessions[session_id].model.observables(states.snapshot(i).mean)
-             } for i in range(len(states.times))]))
+             } for i in range(len(states.times))]
         elif mode == 'metrics':
             pm = list()
             for i in range(len(states.times)):
@@ -516,7 +533,6 @@ def get_predicted_perf_metrics(session_id):
                     'time': states.times[i], 
                     'state': samples.metrics()
                 })
-            return jsonify(pm)
         elif mode == 'multivariate_norm':
             pm = list()
             for i in range(len(states.times)):
@@ -529,7 +545,6 @@ def get_predicted_perf_metrics(session_id):
                         'cov': samples.cov.tolist()
                     }
                 })
-            return jsonify(pm)
         elif mode == 'uncertain_data':
             pm = list()
             for i in range(len(states.times)):
@@ -537,9 +552,15 @@ def get_predicted_perf_metrics(session_id):
                 samples = UnweightedSamples([sessions[session_id].model.observables(x_) for x_ in samples])
                 pm.append(samples)
             
-            return pickle.dumps(Prediction(states.times, pm))
+            return pickle.dumps({
+                "prediction_time": sessions[session_id].results[1]['time'],
+                "performance_metrics": Prediction(states.times, pm)})
         else:
             abort(400, f'Invalid return mode: {mode}')
+        
+        return jsonify({
+            "prediction_time": sessions[session_id].results[1]['time'],
+            "performance_metrics": pm})
 
 def get_predicted_toe(session_id):
     """
@@ -562,18 +583,22 @@ def get_predicted_toe(session_id):
         if sessions[session_id].results is None:
             abort(400, 'No Completed Prediction')
         
-        states = sessions[session_id].results[1]['states']
-
         if mode == 'mean':
-            return jsonify(sessions[session_id].results[1]['time of event'].mean)
+            toe = sessions[session_id].results[1]['time of event'].mean
         elif mode == 'metrics':
-            return jsonify(sessions[session_id].results[1]['time of event'].metrics())
+            toe = sessions[session_id].results[1]['time of event'].metrics()
         elif mode == 'multivariate_norm':
-            return jsonify({
+            toe = {
                 'mean': sessions[session_id].results[1]['time of event'].mean,
                 'cov': sessions[session_id].results[1]['time of event'].cov.tolist()
-            })
+            }
         elif mode == 'uncertain_data':
-            return pickle.dumps(sessions[session_id].results[1]['time of event'])
+            return pickle.dumps({
+                "prediction_time": sessions[session_id].results[1]['time'],
+                'time_of_event': sessions[session_id].results[1]['time of event']})
         else:
             abort(400, f'Invalid return mode: {mode}')
+
+        return jsonify({
+            "prediction_time": sessions[session_id].results[1]['time'],
+            "time_of_event": toe})
