@@ -13,15 +13,14 @@ class ProgServer():
     def __init__(self):
         self.process = None
 
-    def run(self, host='127.0.0.1', port=5000) -> None:
+    def run(self, host='127.0.0.1', port=5000, debug=False) -> None:
         """Run the server (blocking)
 
         Args:
             host (str, optional): Server host. Defaults to '127.0.0.1'.
             port (int, optional): Server port. Defaults to 5000.
         """
-        self.process = app.run(host = host, port = port)
-        
+        self.process = app.run(host = host, port = port, debug=debug)        
 
     def start(self, **kwargs) -> None:
         """Start the server in a separate process
