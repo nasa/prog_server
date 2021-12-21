@@ -577,8 +577,8 @@ def get_predicted_toe(session_id):
     if not sessions[session_id].initialized:
         abort(400, 'Model not initialized')
     
-    app.logger.debug("Get prediction for session {}".format(session_id)) 
     mode = request.args.get('return_format', 'metrics')
+    app.logger.debug(f"Get prediction for session {session_id} (mode {mode})") 
     with sessions[session_id].locks['results']:
         if sessions[session_id].results is None:
             abort(400, 'No Completed Prediction')

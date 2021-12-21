@@ -43,7 +43,10 @@ class Session():
             abort(400, f"Invalid model name {model_name}")
 
         app.logger.debug(f"Creating Model of type {model_name}")
-        self.model = model_class(**model_cfg)
+        try:
+            self.model = model_class(**model_cfg)
+        except Exception as e:
+            abort(400, f"Could not instantiate model with input: {e}")
         self.model_cfg = self.model.parameters.data
         self.moving_avg_loads = {key : [] for key in self.model.inputs}
 
@@ -69,7 +72,10 @@ class Session():
         except AttributeError:
             abort(400, f"Invalid predictor name {pred_name}")
         app.logger.debug(f"Creating Predictor of type {self.pred_name}")
-        self.pred = pred_class(self.model, **pred_cfg)
+        try:
+            self.pred = pred_class(self.model, **pred_cfg)
+        except Exception as e:
+            abort(400, f"Could not instantiate predictor with input: {e}")
         self.pred_cfg = self.pred.parameters
         
         # State Estimator
@@ -88,7 +94,10 @@ class Session():
         app.logger.debug("Initializing...")
         state_est_class = getattr(state_estimators, self.state_est_name)
         app.logger.debug(f"Creating State Estimator of type {self.state_est_name}")
-        self.state_est = state_est_class(self.model, x0, **self.state_est_cfg)
+        try:
+            self.state_est = state_est_class(self.model, x0, **self.state_est_cfg)
+        except Exception as e:
+            abort(400, f"Could not instantiate state estimator with input: {e}")
 
         self.initialized = True
         if predict_queue:
