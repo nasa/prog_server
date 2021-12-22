@@ -72,7 +72,7 @@ class Session:
         """
         Set the future loading profile profile. 
 
-        Args: 
+        Args:
             type (str): Type of loading profile
             cfg (dict): Configuration of loading profile
         """
@@ -83,8 +83,9 @@ class Session:
         """Get the model state 
 
         Returns:
-            float: Time of state estimate
-            UncertainData: Model state
+            tuple: \\
+                | float: Time of state estimate
+                | UncertainData: Model state
         """
         result = requests.get(self.host + '/state', params={'return_format': 'uncertain_data'}, stream='True')
         result = pickle.load(result.raw)
@@ -94,8 +95,9 @@ class Session:
         """Get the predicted model state 
 
         Returns:
-            float: Time of prediction
-            list[dict]: Predicted model state at save points
+            tuple: \\
+                | float: Time of prediction
+                | list[dict]: Predicted model state at save points
         """
         result = requests.get(self.host + '/prediction/state', params={'return_format': 'uncertain_data'}, stream='True')
         result = pickle.load(result.raw)
@@ -105,8 +107,9 @@ class Session:
         """Get the current event state
 
         Returns:
-            float: Time of state estimate
-            dict: Event state
+            tuple: \\
+                | float: Time of state estimate
+                | dict: Event state
         """
         result = requests.get(self.host + '/event_state', params={'return_format': 'uncertain_data'}, stream='True')
         result =  pickle.load(result.raw)
@@ -116,8 +119,9 @@ class Session:
         """Get the predicted event state
 
         Returns:
-            float: Time of prediction
-            list[dict]: predicted Event state
+            tuple: \\
+                | float: Time of prediction
+                | list[dict]: predicted Event state
         """
         result = requests.get(self.host + '/prediction/event_state', params={'return_format': 'uncertain_data'}, stream='True')
         result = pickle.load(result.raw)
@@ -127,8 +131,9 @@ class Session:
         """Get the prediction
 
         Returns:
-            float: Time of prediction
-            dict: Prediction
+            tuple: \\
+                | float: Time of prediction
+                | dict: Prediction
 
         See also: get_prediction_status
         """
@@ -149,8 +154,9 @@ class Session:
         """Get current performance metrics
 
         Returns:
-            float: Time of state estimate
-            dict: Performance Metrics
+            tuple: \\
+                | float: Time of state estimate
+                | dict: Performance Metrics
         """
         result = requests.get(self.host + '/performance_metrics', params={'return_format': 'uncertain_data'}, stream='True')
         result = pickle.load(result.raw)
@@ -160,8 +166,9 @@ class Session:
         """Get predicted performance metrics
 
         Returns:
-            float: Time of prediction
-            list[dict]: Predicted performance Metrics
+            tuple: \\
+                | float: Time of prediction
+                | list[dict]: Predicted performance Metrics
         """
         result = requests.get(self.host + '/prediction/performance_metrics', params={'return_format': 'uncertain_data'}, stream='True')
         result = pickle.load(result.raw)

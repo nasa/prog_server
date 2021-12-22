@@ -15,7 +15,7 @@
     <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Developers Guide" href="dev_guide.html" />
+    <link rel="next" title="prog_client: PaaS Sandbox Client" href="prog_client.html" />
     <link rel="prev" title="Getting Started" href="getting_started.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -35,6 +35,42 @@
             
   <section id="load-estimators">
 <h1>Load Estimators<a class="headerlink" href="#load-estimators" title="Permalink to this headline">¶</a></h1>
+<p>Load estimators are functions that describe the expected future load. The specific load estimator is specified by class name (e.g., Const) by the load_est key when starting a new session. Each class has specific configuration parameters to be specified in load_est_cfg. By default, MovingAverage is used.</p>
+<p>The following load estimators are supported:</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="prog_server.models.load_ests.Const">
+<span class="sig-prename descclassname"><span class="pre">prog_server.models.load_ests.</span></span><span class="sig-name descname"><span class="pre">Const</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#prog_server.models.load_ests.Const" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constant load estimator. Load is assumed to be constant over time.</p>
+<dl class="simple">
+<dt>cfg: dictionary with one key (load) where value is the constant load (dict)</dt><dd><p>e.g., {‘load’: {‘u1’: 0.1}}</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="prog_server.models.load_ests.Variable">
+<span class="sig-prename descclassname"><span class="pre">prog_server.models.load_ests.</span></span><span class="sig-name descname"><span class="pre">Variable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#prog_server.models.load_ests.Variable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Variable (i.e. piece-wise) load estimator. The piecewise load function is defined in the load_est_cfg as ordered dictionary starting_time: load.</p>
+<dl class="simple">
+<dt>cfg: ordered dictionary starting_time: load. First key should always be 0</dt><dd><p>e.g., {‘0’: {‘u1’: 0.1}, ‘100’: {‘u1’: 0.2}, ‘300’: {‘u1’: 0.3}, ‘500’: {‘u1’: 0.0}}</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="prog_server.models.load_ests.MovingAverage">
+<span class="sig-prename descclassname"><span class="pre">prog_server.models.load_ests.</span></span><span class="sig-name descname"><span class="pre">MovingAverage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#prog_server.models.load_ests.MovingAverage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moving average load estimator. Load is estimated as the mean of the last <cite>window_size</cite> samples. Noise can be added using the following optional configuration parameters:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>base_std: standard deviation of noise</p></li>
+<li><p>std_slope: Increase in std with time (e.g., 0.1 = increase of 0.1 in std per second)</p></li>
+<li><p>t0: Starting time for calculation of std</p></li>
+</ul>
+</div></blockquote>
+<p>std of applied noise is defined as base_std + std_slope (t-t0). By default no noise is added</p>
+</dd></dl>
+
 </section>
 
 
@@ -57,6 +93,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Load Estimators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="prog_client.html">prog_client: PaaS Sandbox Client</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://app.swaggerhub.com/apis-docs/teubert/prog_server">Prog Server API</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nasa.github.io/prog_models">ProgModels</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nasa.github.io/prog_algs">ProgAlgs</a></li>
@@ -69,7 +106,7 @@
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="getting_started.html" title="previous chapter">Getting Started</a></li>
-      <li>Next: <a href="dev_guide.html" title="next chapter">Developers Guide</a></li>
+      <li>Next: <a href="prog_client.html" title="next chapter">prog_client: PaaS Sandbox Client</a></li>
   </ul></li>
 </ul>
 </div>
