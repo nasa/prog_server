@@ -10,7 +10,11 @@ TIMEOUT = 10  # Server startup timeout in seconds
 class IntegrationTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        prog_server.start()
+        try:
+            prog_server.start()
+        except RuntimeError:
+            pass # Server is already running and that's ok - use existing server
+
         for i in range(TIMEOUT):
             if prog_server.is_running():
                 return
