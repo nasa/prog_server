@@ -10,10 +10,7 @@ TIMEOUT = 10  # Server startup timeout in seconds
 class IntegrationTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        try:
-            prog_server.start()
-        except RuntimeError:
-            pass # Server is already running and that's ok - use existing server
+        prog_server.start()
 
         for i in range(TIMEOUT):
             if prog_server.is_running():
@@ -116,6 +113,12 @@ class IntegrationTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         prog_server.stop()
+
+        # Wait for shutdown to complete
+        for i in range(TIMEOUT):
+            if not prog_server.is_running():
+                return
+            time.sleep(1)
 
 # This allows the module to be executed directly    
 def run_tests():
