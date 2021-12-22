@@ -106,9 +106,30 @@ class IntegrationTest(unittest.TestCase):
 
         # TODO UPDATED PREDICTION TIME
 
-    def error_in_init(self):
+    def test_error_in_init(self):
+        # Invalid model name
+        with self.assertRaises(Exception):
+            session = prog_client.Session("fake model")
+
         # Model init - process noise has non-existent state
-        session = prog_client.Session('ThrownObject', model_cfg={'process_noise': {'x': 0.1, 'v': 0.1, 'fake_state': 0}})
+        with self.assertRaises(Exception):
+            session = prog_client.Session('ThrownObject', model_cfg={'process_noise': {'x': 0.1, 'v': 0.1, 'fake_state': 0}})
+
+        # invalid predictor
+        with self.assertRaises(Exception):
+            session = prog_client.Session(pred='fake_pred')
+
+        # invalid state est
+        with self.assertRaises(Exception):
+            session = prog_client.Session('ThrownObject', state_est = 'fake_est')
+
+        # invalid predictor
+        with self.assertRaises(Exception):
+            session = prog_client.Session('ThrownObject', pred='fake_pred')
+
+        # invalid load est
+        with self.assertRaises(Exception):
+            session = prog_client.Session('ThrownObject', load_est = 'fake_est')
     
     @classmethod
     def tearDownClass(cls):

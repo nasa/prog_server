@@ -40,6 +40,12 @@ class Session:
         
         # Start session
         result = requests.put(self.host + '/session', data={'model': model, **kwargs})
+
+        # If error code throw Exception
+        if result.status_code != 200:
+            raise Exception(result.text)
+        
+        # Load information
         self.session_id = json.loads(result.text)['session_id']
         self.host += "/session/" + str(self.session_id)
 
