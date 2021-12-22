@@ -1,0 +1,554 @@
+---
+openapi: 3.0.2
+info:
+  title: Prognostics As A Service (PaaS) Sandbox (prog_server)
+  description: The PaaS Sandbox (a.k.a., prog_server) exposes a REST API that enables prognostics using the NASA PCoE prog_models and prog_algs packages 
+  contact:
+    name: Chris Teubert
+    email: christopher.a.teubert@nasa.gov
+  version: beta
+paths:
+  /v1/session:
+    put:
+      description: Create a new session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SessionConfiguration"
+      responses:
+        "200":
+          description: Session created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "400":
+          description: Bad input 
+    get: 
+      description: Get a list of the ids of all open sessions
+      responses:
+        "200":
+          description: Okay response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Sessions"
+  /v1/session/{id}:
+    parameters:
+      - name: id
+        description: id for the active session (generated when session began)
+        in: path 
+        required: true
+        schema:
+          type: integer
+    get:
+      description: Get the details for a specific session 
+      responses:
+        "200":
+          description: Okay response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+    delete:
+      description: End a specific session
+      responses:
+        "200":
+          description: Session deleted
+        "400":
+          description: Session doesn't exist
+  /v1/session/{id}/initialized:
+    parameters:
+      - name: id
+        description: id for the active session (generated when session began)
+        in: path 
+        required: true
+        schema:
+          type: integer
+    get:
+      responses:
+        "200":
+          description: Okay response 
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  initialized:
+                    type: boolean
+        "400":
+          description: Session does not exist or has ended
+  /v1/session/{id}/state: 
+    parameters:
+      - name: id
+        description: id for the active session (generated when session began)
+        in: path 
+        required: true
+        schema:
+          type: integer
+      - name: return_format
+        description: Format for the returned state
+        in: query
+        required: false
+        schema:
+          $ref: "#/components/schemas/ReturnFormat"
+    get:
+      description: Get the most recent estimate of the system state for the model used in this session.
+      responses:
+        "200":
+          description: Okay response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StateReturnWithTime" 
+        "400":
+          description: Session not active, or model not initialized 
+  /v1/session/{id}/event_state:
+    parameters:
+      - name: id
+        in: path 
+        required: true
+        schema:
+          type: integer
+      - name: return_format
+        description: Format for the returned state
+        in: query
+        required: false
+        schema:
+          $ref: "#/components/schemas/ReturnFormat"
+    get:
+      description: Get the most recent estimate of the event state for the model used in this session.
+      responses:
+        "200":
+          description: Okay response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StateReturnWithTime" 
+        "400":
+          description: Session not active, or model not initialized 
+  /v1/session/{id}/performance_metrics:
+    parameters:
+      - name: id
+        in: path 
+        required: true
+        schema:
+          type: integer
+      - name: return_format
+        description: Format for the returned state
+        in: query
+        required: false
+        schema:
+          $ref: "#/components/schemas/ReturnFormat"
+    get:
+      description: Get the most recent estimate for the performance metrics for the model used in the active session
+      responses:
+        "200":
+          description: Okay response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StateReturnWithTime"
+        "400":
+          description: Session not active, or model not initialized 
+  /v1/session/{id}/prediction/state:
+    parameters:
+      - name: id
+        in: path 
+        required: true
+        schema:
+          type: integer
+      - name: return_format
+        description: Format for the returned state
+        in: query
+        required: false
+        schema:
+          $ref: "#/components/schemas/ReturnFormat"
+    get:
+      description: Get the predicted state at save points (defined by pred_cfg['save_pts'] or pred_cfg['save_freq'])
+      responses:
+        "200":
+          description: Okay response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PredictionWithTime"
+        "400":
+          description: Session not active, or model not initialized 
+  /v1/session/{id}/prediction/event_state:
+    parameters:
+      - name: id
+        in: path 
+        required: true
+        schema:
+          type: integer
+      - name: return_format
+        description: Format for the returned state
+        in: query
+        required: false
+        schema:
+          $ref: "#/components/schemas/ReturnFormat"
+    get:
+      description: Get the predicted event state at save points (defined by pred_cfg['save_pts'] or pred_cfg['save_freq'])
+      responses:
+        "200":
+          description: Okay response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PredictionWithTime"
+        "400":
+          description: Session not active, or model not initialized 
+  /v1/session/{id}/prediction/performance_metrics:
+    parameters:
+      - name: id
+        in: path 
+        required: true
+        schema:
+          type: integer
+      - name: return_format
+        description: Format for the returned state
+        in: query
+        required: false
+        schema:
+          $ref: "#/components/schemas/ReturnFormat"
+    get:
+      description: Get the predicted performance metrics at save points (defined by pred_cfg['save_pts'] or pred_cfg['save_freq'])
+      responses:
+        "200":
+          description: Okay response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PredictionWithTime"
+        "400":
+          description: Session not active, or model not initialized 
+  /v1/session/{id}/prediction/events:
+    parameters:
+      - name: id
+        in: path 
+        required: true
+        schema:
+          type: integer
+      - name: return_format
+        description: Format for the returned state
+        in: query
+        required: false
+        schema:
+          $ref: "#/components/schemas/ReturnFormat"
+    get:
+      responses:
+        "200":
+          description: Okay response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ToEPrediction"
+        "400":
+          description: Session not active, or model not initialized 
+  /v1/session/{id}/prediction/status:
+    parameters:
+      - name: id
+        in: path 
+        required: true
+        schema:
+          type: integer
+    get:
+      responses:
+        "200":
+          description: Okay response
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/PredictionStatus"
+        "400":
+          description: Session not active, or model not initialized 
+  /v1/session/{id}/data:
+    parameters:
+      - name: id
+        in: path 
+        required: true
+        schema:
+          type: integer
+    post:
+      parameters:
+        - in: query
+          name: time
+          schema:
+            type: number 
+        - in: query 
+          name: "[parameter name]"
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Okay response 
+        "400":
+          description: Session not active 
+
+components:
+  schemas:
+    ToEPrediction:
+      type: object
+      required: 
+      properties:
+        prediction_time:
+          type: number
+          description: Time at which the prediction was generated
+        time_of_event:
+          type: object
+          properties:
+            schema:
+              $ref: "#/components/schemas/StateReturn"
+
+    StateReturnWithTime:
+      type: object
+      description: The requested property with the time it was calculated
+      required:
+        - time
+      properties:
+        time:
+          type: number
+          description: Time at which state was calculated (in simulation time). Corresponds to the time provided in the last sent data before this state estimate. 
+        event_state:
+          type: object
+          properties:
+            schema:
+              $ref: "#/components/schemas/StateReturn"
+        performance_metrics:
+          type: object
+          properties:
+            schema:
+              $ref: "#/components/schemas/StateReturn"
+        state:
+          type: object
+          properties:
+            schema:
+              $ref: "#/components/schemas/StateReturn"
+           
+    StateReturn:
+      oneOf:
+        - type: object
+          description: JSON representing requested variable (e.g., state, event state, performance metric)
+          example:
+            {'state1': 3.2, 'state2': 1.75}
+        - type: object
+          description: JSON representing statistics for the requested variable (e.g., state, event state, performance metric)
+          additionalProperties:
+            type: object
+            properties:
+              schema: 
+                $ref: "#/components/schemas/Stats"
+          example: 
+            {
+            'state1': {...},
+            'state2': {...}
+            }
+        - type: object
+          description: JSON representing mean and covariance of a normal multivariate distribution approximating the requested variable (e.g., state, event state, performance metric)
+          properties: 
+            mean: 
+              type: object
+            cov: 
+              type: array
+              items:
+                type: array
+                items:
+                  type: integer
+          example:
+            {
+              "mean": {
+                "state1": 1.2, 
+                "state2": 2.5
+              }, 
+              "cov": [[0.15, 0.003], [-0.025, 0.27]]
+            }
+        - type: object
+          description: bytestream of the pickled [prog_models.uncertain_data.UncertainData](https://nasa.github.io/prog_algs/uncertain_data.html) object
+    SessionConfiguration:
+      type: object
+      required:
+        - model
+      properties:
+        model:
+          type: string
+          description: Name of the model (from prog_models.models) to use for the session.
+        model_cfg:
+          type: object
+          description: Configuration JSON for the model. Configuration parameters are specific to the model and can be found in the [prog_models.models documentation](https://nasa.github.io/prog_models/models.html).
+        state_est:
+          type: string
+          description: Name of the state estimator (from prog_algs.state_estimators) to use for the session.
+        state_est_cfg:
+          type: object
+          description: Configuration JSON for the state estimator. Configuration parameters are specific to the state estimator.
+        pred:
+          type: string
+          description: Name of the predictor (from prog_algs.predictors) to use for the session.
+        pred_cfg:
+          type: object
+          description: Configuration JSON for the predictor. Configuration parameters are specific to the predictor.
+        load_est:
+          type: string
+          description: Name of the load estimator used for future loading estimation. See [prog_server documentation](https://nasa.github.io/prog_server/load_ests.html) for more information.
+        load_est_cfg:
+          type: object
+          description: Configuration JSON for the load estimator used for future loading estimation. See [prog_server documentation](https://nasa.github.io/prog_server/load_ests.html) for more information.
+        x0:
+          type: object
+          description: Initial state as a json where keys match model.states.
+      example:
+        {
+          'model': 'BatteryCircuit', 
+          'model_cfg': {'qMax': 7604, 'process_noise': 0.1}, 
+          'state_est': 'ParticleFilter',
+          'state_est_cfg': {'num_particles': 100},
+          'pred': 'MonteCarlo',
+          'pred_cfg': {'n_samples': 100, 'save_freq': 10},
+          'load_est': 'Variable',
+          'load_est_cfg': {'0': {'i': 4.2}, "450": {'i': 2.7}},
+          'x0': {'state1': 1.2}
+        }
+    ReturnFormat:
+      type: string
+      enum:
+        - mean
+        - multivariate_norm
+        - metrics
+        - uncertain_data
+    Session:
+      type: object
+      properties:
+        session_id: 
+          type: integer 
+          format: int32 
+          nullable: false 
+        model:
+          type: object
+          $ref: "#/components/schemas/Element"
+        state_est:
+          type: object
+          $ref: "#/components/schemas/Element"
+        pred:
+          type: object
+          $ref: "#/components/schemas/Element"
+        initialized:
+          type: boolean
+          description: If the model has been initialized
+
+    Element:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Name of the model (from prog_models.models) to use for the session.
+        cfg:
+          type: object
+          description: Configuration JSON for the model. Configuration parameters are specific to the model and can be found in the [prog_models.models documentation](https://nasa.github.io/prog_models/models.html).
+
+    Sessions: 
+      type: array
+      description: A list of the ids of all open sessions
+      items:
+        type: integer
+      example: 
+        [0, 3, 22, 23, 24, 37]
+
+    Stats: 
+      type: object
+      properties:
+        max:
+          type: number
+        mean: 
+          type: number
+        mean absolute deviation:
+          type: number 
+        median: 
+          type: number
+        median absolute deviation:
+          type: number 
+        min:
+          type: number
+        number of samples:
+          type: integer
+        std: 
+          type: number
+        percentiles:
+          type: object
+          properties:
+            0.01:
+              type: number
+              nullable: true
+            0.1:
+              type: number
+              nullable: true
+            1:
+              type: number
+              nullable: true
+            10:
+              type: number
+              nullable: true
+            25:
+              type: number
+              nullable: true
+            50:
+              type: number
+              nullable: true
+            75:
+              type: number
+              nullable: true
+    
+    PredictionWithTime:
+      type: object
+      description: The predicted property with the time at which the prediciton was generated.
+      required:
+        - prediction_time
+      properties:
+        prediction_time: 
+          type: number
+          description: The time at which the prediction was generated.
+        event_states:
+          type: object
+          properties:
+            schema:
+              $ref: "#/components/schemas/Prediction"
+        states:
+          type: object
+          properties:
+            schema:
+              $ref: "#/components/schemas/Prediction"
+        performance_metrics:
+          type: object
+          properties:
+            schema:
+              $ref: "#/components/schemas/Prediction"
+
+    Prediction:
+      type: array
+      items: 
+        type: object
+        properties:
+          time:
+            type: integer
+          state:
+            type: object
+            properties:
+              schema:
+                $ref: "#/components/schemas/StateReturn"
+        
+    PredictionStatus:
+      type: object
+      properties:
+        exceptions:
+          type: array 
+          items:
+            type: string
+        in progress:
+          type: integer
+          format: int32
+          nullable: false
+        last prediction:
+          type: string
+      

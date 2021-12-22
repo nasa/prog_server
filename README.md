@@ -17,7 +17,7 @@ Use the following to cite this repository:
 
 ```
 @misc{2021_nasa_prog_models,
-    author    = {Christopher Teubert and Jason Watkins},
+    author    = {Christopher Teubert and Jason Watkins and Katelyn Jarvis},
     title     = {Prognostics As-A-Service (PaaS) Sandbox},
     month     = Dec,
     year      = 2021,
@@ -28,7 +28,7 @@ Use the following to cite this repository:
 
 The corresponding reference should look like this:
 
-C. Teubert, and J. Watkins, Prognostics As-A-Service (PaaS) Sandbox, v1.0, Dec. 2021. URL https://github.com/nasa/prog_server.
+C. Teubert, J. Watkins, K. Jarvis, Prognostics As-A-Service (PaaS) Sandbox, v1.0, Dec. 2021. URL https://github.com/nasa/prog_server.
 
 ## Notices
 
