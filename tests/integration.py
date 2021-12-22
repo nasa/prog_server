@@ -73,7 +73,7 @@ class IntegrationTest(unittest.TestCase):
             self.assertAlmostEqual(states.times[i], i/10)
             for key, value in states.snapshot(i).mean.items():
                 if i < len(sim_states):  # may have one or two more states
-                    self.assertAlmostEqual(value, sim_states[i][key], delta = (i+1)/20, msg=f"snapshot at {i/10}s for key {key} should be {sim_states[i][key]} was {value}")
+                    self.assertAlmostEqual(value, sim_states[i][key], delta = (i+1)/15, msg=f"snapshot at {i/10}s for key {key} should be {sim_states[i][key]} was {value}")
 
         # Prediction - future event_states
         (t_p, states) = session.get_predicted_event_state()
