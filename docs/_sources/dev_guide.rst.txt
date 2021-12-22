@@ -41,6 +41,7 @@ Release Checklist
 * Run unit tests `python -m tests`
 * Check documents- see if any updates are required
 * Rebuild sphinx documents: `sphinx-build sphinx-config/ docs/`
+* Update openapi specs on `SwaggerHub <https://app.swaggerhub.com/apis/teubert/prog_server/1.0.0-oas3>`__
 * Write release notes
 * For releases adding new features- ensure that NASA release process has been followed
 

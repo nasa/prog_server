@@ -35,14 +35,21 @@
   <section id="prognostics-as-a-service-paas-sandbox">
 <h1>Prognostics As-A-Service (PaaS) Sandbox<a class="headerlink" href="#prognostics-as-a-service-paas-sandbox" title="Permalink to this headline">¶</a></h1>
 <p>The NASA Prognostics As-A-Service (PaaS) Sandbox (a.k.a., prog_server) is a simplified implementation of a Software Oriented Architecture (SOA) for performing prognostics (estimation of time until events and future system states) of engineering systems. The PaaS Sandbox is a wrapper around the <a class="reference external" href="https://github.com/nasa/prog_algs">Prognostics Algorithms Package</a> and <a class="reference external" href="https://github.com/nasa/prog_models">Prognostics Models Package</a>, allowing one or more users to access the features of these packages through a REST API. The package is intended to be used as a research tool to prototype and benchmark Prognostics As-A-Service (PaaS) architectures and work on the challenges facing such architectures, including Generality, Communication, Security, Environmental Complexity, Utility, and Trust.</p>
-<p>This is designed to be used with the <a class="reference external" href="https://github.com/nasa/prog_algs">Prognostics Algorithms Package</a> and <a class="reference external" href="https://github.com/nasa/prog_models">Prognostics Models Package</a>.</p>
+<p>The PaaS Sandbox is actually two packages, prog_server and prog_client. The prog_server package is the server that provides the REST API. The prog_client package is the client that uses the REST API to access the server.</p>
+<p>prog_server uses the <a class="reference external" href="https://github.com/nasa/prog_algs">Prognostics Algorithms Package</a> and <a class="reference external" href="https://github.com/nasa/prog_models">Prognostics Models Package</a>.</p>
 <p>The Prognostics As-A-Service (PaaS) Sandbox was developed by researchers of the NASA Prognostics Center of Excellence (PCoE) and <a class="reference external" href="https://www.nasa.gov/content/diagnostics-prognostics">Diagnostics &amp; Prognostics Group</a>.</p>
 <p>If you are new to this package, see <a class="reference external" href="getting_started.html">getting started</a>.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="prog_client.html">PaaS Sandbox Client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="prog_server_api.html">PaaS Sandbox (prog_server) API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#installing">Installing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#summary">Summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#use">Use</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="load_ests.html">Load Estimators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="prog_client.html">prog_client: PaaS Sandbox Client</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://app.swaggerhub.com/apis-docs/teubert/prog_server">Prog Server API</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nasa.github.io/prog_models">ProgModels</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nasa.github.io/prog_algs">ProgAlgs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dev_guide.html">Developers Guide</a><ul>
@@ -108,8 +115,9 @@
 <h3>Navigation</h3>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="prog_client.html">PaaS Sandbox Client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="prog_server_api.html">PaaS Sandbox (prog_server) API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="load_ests.html">Load Estimators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="prog_client.html">prog_client: PaaS Sandbox Client</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://app.swaggerhub.com/apis-docs/teubert/prog_server">Prog Server API</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nasa.github.io/prog_models">ProgModels</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nasa.github.io/prog_algs">ProgAlgs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dev_guide.html">Developers Guide</a></li>

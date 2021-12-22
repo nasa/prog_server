@@ -15,7 +15,7 @@
     <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="PaaS Sandbox Client" href="prog_client.html" />
+    <link rel="next" title="Load Estimators" href="load_ests.html" />
     <link rel="prev" title="Prognostics As-A-Service (PaaS) Sandbox" href="index.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -35,6 +35,90 @@
             
   <section id="getting-started">
 <h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<p>The NASA Prognostics As-A-Service (PaaS) Sandbox (a.k.a., prog_server) is a simplified implementation of a Software Oriented Architecture (SOA) for performing prognostics (estimation of time until events and future system states) of engineering systems. The PaaS Sandbox is a wrapper around the <a class="reference external" href="https://github.com/nasa/prog_algs">Prognostics Algorithms Package</a> and <a class="reference external" href="https://github.com/nasa/prog_models">Prognostics Models Package</a>, allowing one or more users to access the features of these packages through a REST API. The package is intended to be used as a research tool to prototype and benchmark Prognostics As-A-Service (PaaS) architectures and work on the challenges facing such architectures, including Generality, Communication, Security, Environmental Complexity, Utility, and Trust.</p>
+<section id="installing">
+<h2>Installing<a class="headerlink" href="#installing" title="Permalink to this headline">¶</a></h2>
+<section id="installing-from-pip-recommended">
+<h3>Installing from pip (recommended)<a class="headerlink" href="#installing-from-pip-recommended" title="Permalink to this headline">¶</a></h3>
+<p>The latest stable release of <cite>prog_server</cite> is hosted on PyPi. For most users (unless you want to contribute to the development of <cite>prog_server</cite>), the version on PyPi will be adequate. To install from the command line, use the following command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip install prog_server
+</pre></div>
+</div>
+</section>
+<section id="installing-pre-release-versions-with-github">
+<h3>Installing pre-release versions with GitHub<a class="headerlink" href="#installing-pre-release-versions-with-github" title="Permalink to this headline">¶</a></h3>
+<p>For users who would like to contribute to <cite>prog_server</cite> or would like to use pre-release features can do so using the ‘dev’ branch (or a feature branch) on the <a class="reference external" href="https://github.com/nasa/prog_server">prog_server GitHub repo</a>. This isn’t recommended for most users as this version may be unstable. To use this version, use the following commands:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git clone https://github.com/nasa/prog_algs
+<span class="gp">$ </span><span class="nb">cd</span> prog_algs
+<span class="gp">$ </span>git checkout dev
+<span class="gp">$ </span>pip install -e .
+</pre></div>
+</div>
+</section>
+</section>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h2>
+<p>A few definitions to get started:</p>
+<ul class="simple">
+<li><p><strong>events</strong>: something that can be predicted (e.g., system failure). An event has either occurred or not.</p></li>
+<li><p><strong>event state</strong>: progress towards event occurring. Defined as a number where an event state of 0 indicates the event has occurred and 1 indicates no progress towards the event (i.e., fully healthy operation for a failure event). For gradually occurring events (e.g., discharge) the number will progress from 1 to 0 as the event nears. In prognostics, event state is frequently called “State of Health”</p></li>
+<li><p><strong>inputs</strong>: control applied to the system being modeled (e.g., current drawn from a battery)</p></li>
+<li><p><strong>outputs</strong>: measured sensor values from a system (e.g., voltage and temperature of a battery)</p></li>
+<li><p><strong>observables</strong>: performance characteristics of a system that are a function of system state, but are not directly measured.</p></li>
+<li><p><strong>states</strong>: Internal parameters (typically hidden states) used to represent the state of the system- can be same as inputs/outputs but do not have to be.</p></li>
+<li><p><strong>process noise</strong>: stochastic process representing uncertainty in the model transition.</p></li>
+<li><p><strong>measurement noise</strong>: stochastic process representing uncertainty in the measurement process; e.g., sensor sensitivity, sensor misalignements, environmental effects</p></li>
+</ul>
+<p>prog_server uses the <a class="reference external" href="https://github.com/nasa/prog_algs">Prognostics Algorithms Package</a> and <a class="reference external" href="https://github.com/nasa/prog_models">Prognostics Models Package</a>. The best way to learn how to use prog_server is to first learn how to use these packages. See <a class="reference external" href="https://nasa.github.io/prog_algs">Prognostics Algorithms Package Docs</a> and <a class="reference external" href="https://nasa.github.io/prog_models">Prognostics Models Package Docs</a> for more details.</p>
+<p>The PaaS Sandbox is actually two packages, prog_server and prog_client. The prog_server package is the server that provides the REST API. The prog_client package is the client that uses the REST API to access the server. The prog_server package is the PaaS Sandbox Server. Once started the server can accept requests from one or more applications requesting prognostics, using its REST API (described in <cite>prog_server_api</cite>).</p>
+<p>The prog_client package is a PaaS Sandbox Client. U</p>
+</section>
+<section id="use">
+<h2>Use<a class="headerlink" href="#use" title="Permalink to this headline">¶</a></h2>
+<p>There are two methods for starting the prog_server. The first is by running the module directly. For example,</p>
+<blockquote>
+<div><p>$ python -m prog_server</p>
+</div></blockquote>
+<p>The second method is by starting it programatically in python. For example,</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">prog_server</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prog_server</span><span class="o">.</span><span class="n">start</span><span class="p">()</span> <span class="c1"># Starts the server in a new process (is non-blocking)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="o">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prog_server</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span> <span class="c1"># Stops the server</span>
+</pre></div>
+</div>
+<p>or</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">prog_server</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prog_server</span><span class="o">.</span><span class="n">run</span><span class="p">()</span> <span class="c1"># Starts the server- blocking.</span>
+</pre></div>
+</div>
+<p>The best way to learn how to use prog_server is to look at examples. There are a number of examples included with prog_server, listed below:</p>
+<ul>
+<li><dl>
+<dt><a class="reference download internal" download="" href="_downloads/9e96ec220e704f598a74c5045ed4cd04/online_prog.py"><code class="xref download docutils literal notranslate"><span class="pre">examples.online_prog</span></code></a></dt><dd><span class="target" id="module-examples.online_prog"></span><dl class="simple">
+<dt>This example shows how to use the PaaS Client and Server for online prognostics. Prior to running the example start the server in a terminal window with the command:</dt><dd><p>python -m prog_server</p>
+</dd>
+</dl>
+<p>This example creates a session with the server to run prognostics for a Thrown Object, a simplified model of an object thrown into the air. Data is then sent to the server and a prediction is requested. The prediction is then displayed.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><a class="reference download internal" download="" href="_downloads/9e96ec220e704f598a74c5045ed4cd04/online_prog.py"><code class="xref download docutils literal notranslate"><span class="pre">examples.online_prog</span></code></a></dt><dd><span class="target" id="module-0"></span><dl class="simple">
+<dt>This example shows how to use the PaaS Client and Server for online prognostics. Prior to running the example start the server in a terminal window with the command:</dt><dd><p>python -m prog_server</p>
+</dd>
+</dl>
+<p>This example creates a session with the server to run prognostics for a Thrown Object, a simplified model of an object thrown into the air. Data is then sent to the server and a prediction is requested. The prediction is then displayed.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
 </section>
 
 
@@ -55,9 +139,14 @@
 
 <h3>Navigation</h3>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="prog_client.html">PaaS Sandbox Client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="prog_server_api.html">PaaS Sandbox (prog_server) API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installing">Installing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#use">Use</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="load_ests.html">Load Estimators</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://app.swaggerhub.com/apis-docs/teubert/prog_server">Prog Server API</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nasa.github.io/prog_models">ProgModels</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nasa.github.io/prog_algs">ProgAlgs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dev_guide.html">Developers Guide</a></li>
@@ -69,7 +158,7 @@
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="index.html" title="previous chapter">Prognostics As-A-Service (PaaS) Sandbox</a></li>
-      <li>Next: <a href="prog_client.html" title="next chapter">PaaS Sandbox Client</a></li>
+      <li>Next: <a href="load_ests.html" title="next chapter">Load Estimators</a></li>
   </ul></li>
 </ul>
 </div>
