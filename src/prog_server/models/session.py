@@ -94,6 +94,9 @@ class Session():
         app.logger.debug("Initializing...")
         state_est_class = getattr(state_estimators, self.state_est_name)
         app.logger.debug(f"Creating State Estimator of type {self.state_est_name}")
+        if set(self.model.states) != set(list(x0.keys())):
+            abort(400, f"Initial state must have every state in model. states. Had {list(x0.keys())}, needed {self.model.states}")
+
         try:
             self.state_est = state_est_class(self.model, x0, **self.state_est_cfg)
         except Exception as e:

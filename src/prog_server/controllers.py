@@ -69,7 +69,7 @@ def new_session():
         pred_cfg = pred_cfg
     )
     
-    return jsonify(sessions[session_id].to_dict())
+    return jsonify(sessions[session_id].to_dict()), 201
 
 def get_sessions():
     """
@@ -132,6 +132,8 @@ def set_state(session_id):
     
     sessions[session_id].set_state(x)
 
+    return '', 204
+
 def set_loading_profile(session_id):
     """
     Set the loading profile for the session's model.
@@ -152,6 +154,7 @@ def set_loading_profile(session_id):
     sessions[session_id].set_load_estimator(
         request.values['type'], 
         load_est_cfg)
+
     return get_loading_profile(session_id)
 
 def send_data(session_id):
@@ -181,7 +184,7 @@ def send_data(session_id):
 
     session.add_data(time, inputs, outputs)
 
-    return '' 
+    return '', 204
 
 # Get
 def get_loading_profile(session_id):

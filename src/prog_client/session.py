@@ -42,7 +42,7 @@ class Session:
         result = requests.put(self.host + '/session', data={'model': model, **kwargs})
 
         # If error code throw Exception
-        if result.status_code != 200:
+        if result.status_code != 201:
             raise Exception(result.text)
         
         # Load information
@@ -72,7 +72,10 @@ class Session:
             session.send_data(10.2, t=32.0, v=3.914, i=2)
         """
         result = requests.post(self.host + '/data', data={'time': time, **kwargs})
-        # TODO(CT): Check result code
+
+        # If error code throw Exception
+        if result.status_code != 204:
+            raise Exception(result.text)
 
     def send_loading(self, type: str, cfg: dict):
         """
@@ -83,7 +86,10 @@ class Session:
             cfg (dict): Configuration of loading profile
         """
         result = requests.post(self.host + '/loading', data={'type': type, 'cfg': json.dumps(cfg)})
-        # TODO(CT): Check result code
+        
+        # If error code throw Exception
+        if result.status_code != 204:
+            raise Exception(result.text)
 
     def get_state(self):
         """Get the model state 
@@ -94,6 +100,11 @@ class Session:
                 | UncertainData: Model state
         """
         result = requests.get(self.host + '/state', params={'return_format': 'uncertain_data'}, stream='True')
+
+        # If error code throw Exception
+        if result.status_code != 200:
+            raise Exception(result.text)
+
         result = pickle.load(result.raw)
         return (result['time'], result['state'])
 
@@ -106,6 +117,11 @@ class Session:
                 | list[dict]: Predicted model state at save points
         """
         result = requests.get(self.host + '/prediction/state', params={'return_format': 'uncertain_data'}, stream='True')
+
+        # If error code throw Exception
+        if result.status_code != 200:
+            raise Exception(result.text)
+
         result = pickle.load(result.raw)
         return (result['prediction_time'], result['states'])
 
@@ -118,6 +134,11 @@ class Session:
                 | dict: Event state
         """
         result = requests.get(self.host + '/event_state', params={'return_format': 'uncertain_data'}, stream='True')
+
+        # If error code throw Exception
+        if result.status_code != 200:
+            raise Exception(result.text)
+
         result =  pickle.load(result.raw)
         return (result['time'], result['event_state'])
 
@@ -130,6 +151,11 @@ class Session:
                 | list[dict]: predicted Event state
         """
         result = requests.get(self.host + '/prediction/event_state', params={'return_format': 'uncertain_data'}, stream='True')
+
+        # If error code throw Exception
+        if result.status_code != 200:
+            raise Exception(result.text)
+
         result = pickle.load(result.raw)
         return (result['prediction_time'], result['event_states'])
 
@@ -144,6 +170,11 @@ class Session:
         See also: get_prediction_status
         """
         result = requests.get(self.host + '/prediction/events', params={'return_format': 'uncertain_data'}, stream='True')
+
+        # If error code throw Exception
+        if result.status_code != 200:
+            raise Exception(result.text)
+            
         result = pickle.load(result.raw)
         return (result['prediction_time'], result['time_of_event'])
 
@@ -154,6 +185,11 @@ class Session:
             dict: Status of prediction 
         """
         result = requests.get(self.host + '/prediction/status')
+
+        # If error code throw Exception
+        if result.status_code != 200:
+            raise Exception(result.text)
+
         return json.loads(result.text)
 
     def get_performance_metrics(self):
@@ -165,6 +201,11 @@ class Session:
                 | dict: Performance Metrics
         """
         result = requests.get(self.host + '/performance_metrics', params={'return_format': 'uncertain_data'}, stream='True')
+
+        # If error code throw Exception
+        if result.status_code != 200:
+            raise Exception(result.text)
+
         result = pickle.load(result.raw)
         return (result['time'], result['performance_metrics'])
 
@@ -177,5 +218,10 @@ class Session:
                 | list[dict]: Predicted performance Metrics
         """
         result = requests.get(self.host + '/prediction/performance_metrics', params={'return_format': 'uncertain_data'}, stream='True')
+
+        # If error code throw Exception
+        if result.status_code != 200:
+            raise Exception(result.text)
+
         result = pickle.load(result.raw)
         return (result['prediction_time'], result['performance_metrics'])

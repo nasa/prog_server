@@ -22,3 +22,4 @@ if __name__ == '__main__':
 
     if not was_successful:
         raise Exception("Failed test")
+    print('All tests succeeded')
