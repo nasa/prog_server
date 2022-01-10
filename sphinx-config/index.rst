@@ -9,6 +9,8 @@ prog_server uses the `Prognostics Algorithms Package <https://github.com/nasa/pr
 
 The Prognostics As-A-Service (PaaS) Sandbox was developed by researchers of the NASA Prognostics Center of Excellence (PCoE) and `Diagnostics & Prognostics Group <https://www.nasa.gov/content/diagnostics-prognostics>`__.
 
+The PaaS Sandbox is a simplified version of the Prognostics As-A-Service Architecture implented as the PaaS/SWS Safety Service software by the NASA System Wide Safety (SWS) project, building upon the original work of the Convergent Aeronautics Solutions (CAS) project. This implementation is a research tool, and is therefore missing important features that should be present in a full implementation of the PaaS architecture such as authentication and persistent state management.
+
 If you are new to this package, see `getting started <getting_started.html>`__.
 
 .. toctree::
