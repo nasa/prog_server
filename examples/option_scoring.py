@@ -47,7 +47,7 @@ def run_example():
     # We are specifying a time of interest of 2000 seconds.
     # This could be the end of a mission/session, or some inspection time. 
     print('\nStarting Sessions')
-    sessions = [prog_client.Session('BatteryCircuit', pred_cfg = {'save_pts': [2000], 'save_freq': 1e99}, load_est = 'Variable', load_est_cfg = LOAD_PROFILES[i]) for i in range(len(LOAD_PROFILES))]
+    sessions = [prog_client.Session('BatteryCircuit', pred_cfg = {'save_pts': [2000], 'save_freq': 1e99, 'n_samples':15}, load_est = 'Variable', load_est_cfg = LOAD_PROFILES[i]) for i in range(len(LOAD_PROFILES))]
 
     # Step 3: Wait for prognostics to complete
     print('\nWaiting for sessions to complete (this may take a bit)')
