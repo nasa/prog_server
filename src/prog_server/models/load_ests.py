@@ -7,7 +7,7 @@ from flask import abort
 from functools import partial
 
 def Variable(t, x = None, session = None, cfg = None):
-    """Variable (i.e. piece-wise) load estimator. The piecewise load function is defined in the load_est_cfg as ordered dictionary starting_time: load. 
+    """Variable (i.e. piecewise) load estimator. The piecewise load function is defined in the load_est_cfg as ordered dictionary starting_time: load. 
 
     cfg: ordered dictionary starting_time: load. First key should always be 0
         e.g., {'0': {'u1': 0.1}, '100': {'u1': 0.2}, '300': {'u1': 0.3}, '500': {'u1': 0.0}}
