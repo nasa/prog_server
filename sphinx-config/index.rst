@@ -29,18 +29,18 @@ Citing this repository
 -----------------------
 Use the following to cite this repository:
 
-@misc{2021_nasa_prog_server,
+@misc{2022_nasa_prog_server,
   | author    = {Christopher Teubert and Jason Watkins and Katelyn Jarvis},
   | title     = {Prognostics As-A-Service (PaaS) Sandox},
-  | month     = Dec,
-  | year      = 2021,
+  | month     = Jan,
+  | year      = 2022,
   | version   = {1.0.0},
   | url       = {https://github.com/nasa/prog_server}
   | }
 
 The corresponding reference should look like this:
 
-C. Teubert, J. Watkins, K. Jarvis Prognostics As-A-Service (PaaS) Package, v1.0.0, Dec 2021. URL https://github.com/nasa/prog_server.
+C. Teubert, J. Watkins, K. Jarvis Prognostics As-A-Service (PaaS) Package, v1.0.0, Jan 2022. URL https://github.com/nasa/prog_server.
 
 Indices and tables
 -----------------------
