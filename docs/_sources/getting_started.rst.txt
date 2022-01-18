@@ -45,15 +45,15 @@ A few definitions to get started:
 
 * **measurement noise**: stochastic process representing uncertainty in the measurement process; e.g., sensor sensitivity, sensor misalignements, environmental effects 
 
-prog_server uses the `Prognostics Algorithms Package <https://github.com/nasa/prog_algs>`__ and `Prognostics Models Package <https://github.com/nasa/prog_models>`__. The best way to learn how to use prog_server is to first learn how to use these packages. See `Prognostics Algorithms Package Docs <https://nasa.github.io/prog_algs>`__ and `Prognostics Models Package Docs <https://nasa.github.io/prog_models>`__ for more details.
+`prog_server` uses the `Prognostics Algorithms Package <https://github.com/nasa/prog_algs>`__ and `Prognostics Models Package <https://github.com/nasa/prog_models>`__. The best way to learn how to use prog_server is to first learn how to use these packages. See `Prognostics Algorithms Package Docs <https://nasa.github.io/prog_algs>`__ and `Prognostics Models Package Docs <https://nasa.github.io/prog_models>`__ for more details.
 
-The PaaS Sandbox is actually two packages, prog_server and prog_client. The prog_server package is the server that provides the REST API. The prog_client package is the client that uses the REST API to access the server. The prog_server package is the PaaS Sandbox Server. Once started the server can accept requests from one or more applications requesting prognostics, using its REST API (described in `prog_server_api`). 
-
-The prog_client package is a PaaS Sandbox Client. U
+The PaaS Sandbox is actually two packages, `prog_server` and `prog_client`. The `prog_server` package is the server that provides the REST API. The `prog_client` package is a python client that uses the REST API (see `prog_client <prog_client.html>`__) The `prog_server` package is the PaaS Sandbox Server. Once started the server can accept requests from one or more applications requesting prognostics, using its REST API (described in `prog_server_api`). 
 
 Use 
 ----
 There are two methods for starting the prog_server. The first is by running the module directly. For example,
+
+.. code-block:: console
 
     $ python -m prog_server
 
@@ -71,9 +71,15 @@ or
 
 The best way to learn how to use prog_server is to look at examples. There are a number of examples included with prog_server, listed below:
 
+.. |br| raw:: html
+
+     <br>
+
 * :download:`examples.online_prog <../examples/online_prog.py>`
     .. automodule:: examples.online_prog
+
+|br|
     |
-* :download:`examples.online_prog <../examples/online_prog.py>`
-    .. automodule:: examples.online_prog
+* :download:`examples.option_scoring <../examples/option_scoring.py>`
+    .. automodule:: examples.option_scoring
     |

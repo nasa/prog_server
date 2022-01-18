@@ -28,7 +28,7 @@ Branching Strategy
 ------------------
 Our project is following the git strategy described `here <https://nvie.com/posts/a-successful-git-branching-model/>`_. Details specific to each branch are described below. 
 
-`master`: Every merge into the master branch is done using a pull request (never commiting directly), is assigned a release number, and must comply with the release checklist. The release checklist is a software assurance tool. 
+`main`: Every merge into the main branch is done using a pull request (never commiting directly), is assigned a release number, and must comply with the release checklist. The release checklist is a software assurance tool. 
 
 `dev`: Every merge into the dev branch that contains a functional change is done using a pull request (not commiting directly). Every commit should be functional. All unit tests must function before commiting to dev or merging another branch. 
 
