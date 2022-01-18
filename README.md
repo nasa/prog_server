@@ -7,10 +7,10 @@ The NASA Prognostics As-A-Service (PaaS) Sandbox is a simplified implementation 
 
 This is designed to be used with the [Prognostics Algorithms Package](https://github.com/nasa/prog_algs) and [Prognostics Models Package](https://github.com/nasa/prog_models).
 
-## Installation - SOON
+## Installation
 `pip install prog_server`
 
-## [Documentation](https://nasa.github.io/prog_server/) - SOON
+## [Documentation](https://nasa.github.io/prog_server/)
 See documentation [here](https://nasa.github.io/prog_server/)
 
 ## Citing this repository
