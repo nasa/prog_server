@@ -15,7 +15,7 @@ def predict(session):
             x = deepcopy(session.state_est.x)
             time = session.state_est.t
         
-        (_, _, states, _, event_states, events) = session.pred.predict(x, session.load_est, dt=0.1)
+        (_, _, states, _, event_states, events) = session.pred.predict(x, session.load_est, dt=0.1, t0 = time)
 
     with session.locks['results']:
         session.results = (
