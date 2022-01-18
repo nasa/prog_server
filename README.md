@@ -1,4 +1,5 @@
 # Prognostics As-A-Service (PaaS) Sandbox
+[![CodeFactor](https://www.codefactor.io/repository/github/nasa/prog_server/badge)](https://www.codefactor.io/repository/github/nasa/prog_server)
 [![GitHub License](https://img.shields.io/badge/License-NOSA-green)](https://github.com/nasa/prog_server/blob/master/license.pdf)
 [![GitHub Releases](https://img.shields.io/github/release/nasa/prog_server.svg)](https://github.com/nasa/prog_server/releases)
 
