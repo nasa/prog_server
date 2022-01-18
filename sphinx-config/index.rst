@@ -1,6 +1,9 @@
 Prognostics As-A-Service (PaaS) Sandbox
 =============================================================
 
+[![CodeFactor](https://www.codefactor.io/repository/github/nasa/prog_server/badge)](https://www.codefactor.io/repository/github/nasa/prog_server)
+[![License](https://img.shields.io/badge/License-NOSA-green)](https://github.com/nasa/prog_algs/blob/master/license.pdf)
+[![Releases](https://img.shields.io/github/release/nasa/prog_algs.svg)](https://github.com/nasa/prog_algs/releases)
 
 The NASA Prognostics As-A-Service (PaaS) Sandbox (a.k.a., prog_server) is a simplified implementation of a Software Oriented Architecture (SOA) for performing prognostics (estimation of time until events and future system states) of engineering systems. The PaaS Sandbox is a wrapper around the `Prognostics Algorithms Package <https://github.com/nasa/prog_algs>`__ and `Prognostics Models Package <https://github.com/nasa/prog_models>`__, allowing one or more users to access the features of these packages through a REST API. The package is intended to be used as a research tool to prototype and benchmark Prognostics As-A-Service (PaaS) architectures and work on the challenges facing such architectures, including Generality, Communication, Security, Environmental Complexity, Utility, and Trust.
 
