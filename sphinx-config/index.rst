@@ -22,7 +22,7 @@ If you are new to this package, see `getting started <getting_started.html>`__.
    Prog Server API <https://app.swaggerhub.com/apis-docs/teubert/prog_server>
    ProgModels <https://nasa.github.io/prog_models>
    ProgAlgs <https://nasa.github.io/prog_algs>
-   dev_guide
+   dev_guide <https://nasa.github.io/prog_models/dev_guide.html>
    GitHub <https://github.com/nasa/prog_server>
 
 Citing this repository
