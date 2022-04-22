@@ -4,3 +4,7 @@ __pycache__/
 *$py.class
 
 src/prog_server.egg-info/
+
+dist/
+
+build/
