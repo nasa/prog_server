@@ -4,6 +4,8 @@
 import requests, json
 import urllib3
 import pickle
+from prog_algs.uncertain_data import UncertainData
+import prog_models
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -87,6 +89,31 @@ class Session:
         """
         result = requests.post(self.host + '/loading', data={'type': type, 'cfg': json.dumps(cfg)})
         
+        # If error code throw Exception
+        if result.status_code != 204:
+            raise Exception(result.text)
+
+    def set_state(self, x):
+        """
+        Set the model state.
+
+        Args:
+            x (UncertainData, Dict, model.StateContainer): Model state
+        """
+        if isinstance(x, UncertainData):
+            x = pickle.dumps(x)
+            input_format = 'uncertain_data'
+        elif isinstance(x, prog_models.utils.containers.DictLikeMatrixWrapper):
+            x = pickle.dumps(x)
+            input_format = 'state_container'
+        elif isinstance(x, dict):
+            x = {'x': json.dumps(x)}
+            input_format = 'dict'
+        else:
+            raise Exception('Invalid state type ' + str(type(x)))
+
+        result = requests.post(self.host + '/state', data=x, params={'format': input_format})
+
         # If error code throw Exception
         if result.status_code != 204:
             raise Exception(result.text)
