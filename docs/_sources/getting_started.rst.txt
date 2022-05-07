@@ -20,8 +20,8 @@ For users who would like to contribute to `prog_server` or would like to use pre
 
 .. code-block:: console
 
-    $ git clone https://github.com/nasa/prog_algs
-    $ cd prog_algs
+    $ git clone https://github.com/nasa/prog_server
+    $ cd prog_server
     $ git checkout dev 
     $ pip install -e .
 
