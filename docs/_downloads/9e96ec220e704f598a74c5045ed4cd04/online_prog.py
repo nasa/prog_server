@@ -71,7 +71,7 @@ def run_example():
             # Prediction is returned as a type uncertain_data, so you can manipulate it like that datatype.
             # See https://nasa.github.io/prog_algs/uncertain_data.html
             t, prediction = session.get_predicted_toe()
-            print(f'Predicted Toe (using state from {t}s): ')
+            print(f'Predicted ToE (using state from {t}s): ')
             pprint(prediction.mean)
 
             # Get Predicted future states
