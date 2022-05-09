@@ -35,7 +35,7 @@
   <section id="prognostics-as-a-service-paas-sandbox">
 <h1>Prognostics As-A-Service (PaaS) Sandbox<a class="headerlink" href="#prognostics-as-a-service-paas-sandbox" title="Permalink to this headline">¶</a></h1>
 <p>The NASA Prognostics As-A-Service (PaaS) Sandbox (a.k.a., prog_server) is a simplified implementation of a Software Oriented Architecture (SOA) for performing prognostics (estimation of time until events and future system states) of engineering systems. The PaaS Sandbox is a wrapper around the <a class="reference external" href="https://github.com/nasa/prog_algs">Prognostics Algorithms Package</a> and <a class="reference external" href="https://github.com/nasa/prog_models">Prognostics Models Package</a>, allowing one or more users to access the features of these packages through a REST API. The package is intended to be used as a research tool to prototype and benchmark Prognostics As-A-Service (PaaS) architectures and work on the challenges facing such architectures, including Generality, Communication, Security, Environmental Complexity, Utility, and Trust.</p>
-<p>The PaaS Sandbox is actually two packages, prog_server and prog_client. The prog_server package is the server that provides the REST API. The prog_client package is the client that uses the REST API to access the server.</p>
+<p>The PaaS Sandbox is actually two packages, prog_server and prog_client. The prog_server package is a prognostics server that provides the REST API. The prog_client package is a python client that provides functions to interact with the server via the REST API.</p>
 <p>prog_server uses the <a class="reference external" href="https://github.com/nasa/prog_algs">Prognostics Algorithms Package</a> and <a class="reference external" href="https://github.com/nasa/prog_models">Prognostics Models Package</a>.</p>
 <p>The Prognostics As-A-Service (PaaS) Sandbox was developed by researchers of the NASA Prognostics Center of Excellence (PCoE) and <a class="reference external" href="https://www.nasa.gov/content/diagnostics-prognostics">Diagnostics &amp; Prognostics Group</a>.</p>
 <p>The PaaS Sandbox is a simplified version of the Prognostics As-A-Service Architecture implented as the PaaS/SWS Safety Service software by the NASA System Wide Safety (SWS) project, building upon the original work of the Convergent Aeronautics Solutions (CAS) project. This implementation is a research tool, and is therefore missing important features that should be present in a full implementation of the PaaS architecture such as authentication and persistent state management.</p>
@@ -63,10 +63,10 @@
 <dl>
 <dt>&#64;misc{2022_nasa_prog_server,</dt><dd><div class="line-block">
 <div class="line">author    = {Christopher Teubert and Jason Watkins and Katelyn Jarvis},</div>
-<div class="line">title     = {Prognostics As-A-Service (PaaS) Sandox},</div>
-<div class="line">month     = Jan,</div>
+<div class="line">title     = {Prognostics As-A-Service (PaaS) Sandbox},</div>
+<div class="line">month     = May,</div>
 <div class="line">year      = 2022,</div>
-<div class="line">version   = {1.0.0},</div>
+<div class="line">version   = {1.3.0},</div>
 <div class="line">url       = {<a class="reference external" href="https://github.com/nasa/prog_server">https://github.com/nasa/prog_server</a>}</div>
 <div class="line">}</div>
 </div>
@@ -74,7 +74,7 @@
 </dl>
 <p>The corresponding reference should look like this:</p>
 <ol class="upperalpha simple" start="3">
-<li><p>Teubert, J. Watkins, K. Jarvis Prognostics As-A-Service (PaaS) Package, v1.0.0, Jan 2022. URL <a class="reference external" href="https://github.com/nasa/prog_server">https://github.com/nasa/prog_server</a>.</p></li>
+<li><p>Teubert, J. Watkins, K. Jarvis Prognostics As-A-Service (PaaS) Sandbox, v1.3.0, May 2022. URL <a class="reference external" href="https://github.com/nasa/prog_server">https://github.com/nasa/prog_server</a>.</p></li>
 </ol>
 </section>
 <section id="indices-and-tables">

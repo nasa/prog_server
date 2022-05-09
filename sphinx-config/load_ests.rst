@@ -6,7 +6,7 @@ Load estimators are functions that describe the expected future load. The specif
 Here's an example setting the load estimator and config:
 
     >>> from prog_client import Session
-    >>> s = Session('BatteryCircuit', load_est='Const', load_est_cfg={'const': 1.0})
+    >>> s = Session('BatteryCircuit', load_est='Const', load_est_cfg={'load': 1.0})
 
 The following load estimators are supported:
 
