@@ -88,14 +88,15 @@ paths:
         required: true
         schema:
           type: integer
-      - name: return_format
-        description: Format for the returned state
-        in: query
-        required: false
-        schema:
-          $ref: "#/components/schemas/ReturnFormat"
     get:
       description: Get the most recent estimate of the system state for the model used in this session.
+      parameters:
+        - name: return_format
+          description: Format for the returned state
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/ReturnFormat"
       responses:
         "200":
           description: Okay response
@@ -105,6 +106,24 @@ paths:
                 $ref: "#/components/schemas/StateReturnWithTime" 
         "400":
           description: Session not active, or model not initialized 
+    set:
+      description: Set the system state to some known value. 
+      parameters:
+        - name: format
+          description: Format for the provided state
+          in: query
+          required: false
+          schema: 
+            $ref: "#/components/schemas/ProvidedFormat"
+      responses:
+        "200":
+          description: Okay response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StateProvided" 
+        "400":
+          description: Session not active, or state not in acceptable form
   /v1/session/{id}/event_state:
     parameters:
       - name: id
@@ -328,6 +347,15 @@ components:
             schema:
               $ref: "#/components/schemas/StateReturn"
            
+    StateProvided:
+      oneOf:
+        - type: object
+          description: JSON representing state
+          example:
+            {'state1': 3.2, 'state2': 1.75}
+        - type: object
+          description: bytestream of the pickled [prog_models.uncertain_data.UncertainData](https://nasa.github.io/prog_algs/uncertain_data.html) object
+    
     StateReturn:
       oneOf:
         - type: object
@@ -411,6 +439,12 @@ components:
           'load_est_cfg': {'0': {'i': 4.2}, "450": {'i': 2.7}},
           'x0': {'state1': 1.2}
         }
+    ProvidedFormat:
+      type: string
+      enum:
+        - dict
+        - state_container
+        - uncertain_data
     ReturnFormat:
       type: string
       enum:

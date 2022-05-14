@@ -124,11 +124,18 @@ def set_state(session_id):
     if session_id not in sessions:
         abort(400, f'Session {session_id} does not exist or has ended')
 
-    if 'x' not in request.form:
-        abort(400, "state ('x') must be specified in request body")
+    mode = request.args.get('format', 'dict')
 
-    app.logger.debug(f"Setting state for Session {session_id}")
-    x = request.form.get('x')
+    app.logger.debug(f"Setting state for Session {session_id}. Format: {mode}")
+
+    if mode == 'dict':
+        if 'x' not in request.form:
+            abort(400, "state ('x') must be specified in request body")
+        x = sessions[session_id].model.StateContainer(json.loads(request.form.get('x')))
+    elif mode == 'uncertain_data' or mode == 'state_container':
+        x = pickle.loads(request.get_data())
+    else:
+        abort(400, f'Unsupported format: {mode}')
     
     sessions[session_id].set_state(x)
 

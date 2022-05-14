@@ -11,8 +11,8 @@ long_description = (here / 'README.md').read_text(encoding='utf-8')
 
 setup(
     name = 'prog_server',
-    version = '1.0.0', #pkg_resources.require("prog_models")[0].version,
-    description = 'The NASA Prognostics As-A-Service (PaaS) Sandbox (a.k.a. prog_server) is a simplified implementation of a Software Oriented Architecture (SOA) for performing prognostics (estimation of time until events and future system states) of engineering systems. The PaaS Sandbox is a wrapper around the [Prognostics Algorithms Package](https://github.com/nasa/prog_algs) and [Prognostics Models Package](https://github.com/nasa/prog_models), allowing one or more users to access the features of these packages through a REST API. The package is intended to be used as a research tool to prototype and benchmark Prognostics As-A-Service (PaaS) architectures and work on the challenges facing such architectures.',
+    version = '1.3.0', #pkg_resources.require("prog_models")[0].version,
+    description = 'The NASA Prognostics As-A-Service (PaaS) Sandbox (a.k.a. prog_server) is a simplified Software Oriented Architecture (SOA) for performing prognostics of engineering systems. The PaaS Sandbox is a wrapper around the Prognostics Algorithms and Models Packages, allowing 1+ users to access these packages features through a REST API. The package is intended to be used as a research tool to prototype and benchmark Prognostics As-A-Service (PaaS) architectures and work on the challenges facing such architectures',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url = 'https://github.com/nasa/prog_server',

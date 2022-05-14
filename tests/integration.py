@@ -33,6 +33,30 @@ class IntegrationTest(unittest.TestCase):
         x0 = m.initialize()
         for key, value in x.mean.items():
             self.assertAlmostEqual(value, x0[key])
+
+        x2 = {'x': 1, 'v': 20}
+        session.set_state(x2)
+        (_, x) = session.get_state()
+        for key, value in x.mean.items():
+            self.assertAlmostEqual(value, x2[key])
+
+        from prog_algs.uncertain_data import MultivariateNormalDist
+        mean = {'x': 2, 'v': 40}
+        cov = [[0.1, 0], [0, 0.1]]
+        x3 = MultivariateNormalDist(mean.keys(), list(mean.values()), cov)
+        session.set_state(x3)
+        (_, x) = session.get_state()
+        for key, value in x.mean.items():
+            self.assertAlmostEqual(value, mean[key], delta=0.5)
+        for i in range(len(x0)):
+            for j in range(len(x0)):
+                self.assertAlmostEqual(x.cov[i][j], cov[i][j], delta=0.1)
+        
+        # Reset State - state container
+        session.set_state(x0)
+        (_, x) = session.get_state()
+        for key, value in x.mean.items():
+            self.assertAlmostEqual(value, x0[key])
         
         # Event State
         (_, es) = session.get_event_state()
@@ -63,8 +87,8 @@ class IntegrationTest(unittest.TestCase):
         # Prediction - ToE
         (t_p, ToE) = session.get_predicted_toe()
         self.assertAlmostEqual(t_p, -1e-99)
-        self.assertAlmostEqual(ToE.mean['falling'], 4.125, delta=0.1)
-        self.assertAlmostEqual(ToE.mean['impact'], 8.3, delta=0.1)
+        self.assertAlmostEqual(ToE.mean['falling'], 3.8, delta=0.1)
+        self.assertAlmostEqual(ToE.mean['impact'], 7.9, delta=0.1)
 
         # Prep Prediction
         (times, _, sim_states, _, sim_es) = m.simulate_to_threshold(lambda t,x=None: {}, threshold_keys='impact', save_freq=0.1, dt=0.1)
@@ -74,7 +98,7 @@ class IntegrationTest(unittest.TestCase):
         self.assertAlmostEqual(t_p, -1e-99)
 
         for i in range(len(states.times)):
-            self.assertAlmostEqual(states.times[i], i/10)
+            self.assertAlmostEqual(states.times[i], i/10, delta=0.2)
             for key, value in states.snapshot(i).mean.items():
                 if i < len(sim_states):  # may have one or two more states
                     self.assertAlmostEqual(value, sim_states[i][key], delta = (i+1)/15, msg=f"snapshot at {i/10}s for key {key} should be {sim_states[i][key]} was {value}")
@@ -84,7 +108,7 @@ class IntegrationTest(unittest.TestCase):
         self.assertAlmostEqual(t_p, -1e-99)
 
         for i in range(len(states.times)):
-            self.assertAlmostEqual(states.times[i], i/10)
+            self.assertAlmostEqual(states.times[i], i/10, delta = 0.2)
             for key, value in states.snapshot(i).mean.items():
                 if i < len(sim_es):  # may have one or two more states
                     self.assertAlmostEqual(value, sim_es[i][key], delta = (i+1)/20, msg=f"snapshot at {i/10}s for key {key} should be {sim_es[i][key]} was {value}")

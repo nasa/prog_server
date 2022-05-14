@@ -4,6 +4,8 @@
 import requests, json
 import urllib3
 import pickle
+from prog_algs.uncertain_data import UncertainData
+import prog_models
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -91,6 +93,31 @@ class Session:
         if result.status_code != 204:
             raise Exception(result.text)
 
+    def set_state(self, x):
+        """
+        Set the model state.
+
+        Args:
+            x (UncertainData, Dict, model.StateContainer): Model state
+        """
+        if isinstance(x, UncertainData):
+            x = pickle.dumps(x)
+            input_format = 'uncertain_data'
+        elif isinstance(x, prog_models.utils.containers.DictLikeMatrixWrapper):
+            x = pickle.dumps(x)
+            input_format = 'state_container'
+        elif isinstance(x, dict):
+            x = {'x': json.dumps(x)}
+            input_format = 'dict'
+        else:
+            raise Exception('Invalid state type ' + str(type(x)))
+
+        result = requests.post(self.host + '/state', data=x, params={'format': input_format})
+
+        # If error code throw Exception
+        if result.status_code != 204:
+            raise Exception(result.text)
+
     def get_state(self):
         """Get the model state 
 
@@ -114,7 +141,7 @@ class Session:
         Returns:
             tuple: \\
                 | float: Time of prediction
-                | list[dict]: Predicted model state at save points
+                | Prediction: Predicted model state at save points
         """
         result = requests.get(self.host + '/prediction/state', params={'return_format': 'uncertain_data'}, stream='True')
 
@@ -131,7 +158,7 @@ class Session:
         Returns:
             tuple: \\
                 | float: Time of state estimate
-                | dict: Event state
+                | UncertainData: Event state
         """
         result = requests.get(self.host + '/event_state', params={'return_format': 'uncertain_data'}, stream='True')
 
@@ -148,7 +175,7 @@ class Session:
         Returns:
             tuple: \\
                 | float: Time of prediction
-                | list[dict]: predicted Event state
+                | Prediction: predicted Event state
         """
         result = requests.get(self.host + '/prediction/event_state', params={'return_format': 'uncertain_data'}, stream='True')
 
@@ -160,12 +187,12 @@ class Session:
         return (result['prediction_time'], result['event_states'])
 
     def get_predicted_toe(self):
-        """Get the prediction
+        """Get the predicted Time of Event (ToE)
 
         Returns:
             tuple: \\
                 | float: Time of prediction
-                | dict: Prediction
+                | UncertainData: Prediction
 
         See also: get_prediction_status
         """
@@ -198,7 +225,7 @@ class Session:
         Returns:
             tuple: \\
                 | float: Time of state estimate
-                | dict: Performance Metrics
+                | UncertainData: Performance Metrics
         """
         result = requests.get(self.host + '/performance_metrics', params={'return_format': 'uncertain_data'}, stream='True')
 
@@ -215,7 +242,7 @@ class Session:
         Returns:
             tuple: \\
                 | float: Time of prediction
-                | list[dict]: Predicted performance Metrics
+                | Prediction: Predicted performance Metrics
         """
         result = requests.get(self.host + '/prediction/performance_metrics', params={'return_format': 'uncertain_data'}, stream='True')
 

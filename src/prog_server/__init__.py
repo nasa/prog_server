@@ -3,7 +3,7 @@
 
 from .models.prog_server import server
 
-__version__ = '1.0.0'
+__version__ = '1.3.0'
 
 def run(**kwargs):
     """
