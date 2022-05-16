@@ -141,7 +141,7 @@ class Session:
         Returns:
             tuple: \\
                 | float: Time of prediction
-                | list[dict]: Predicted model state at save points
+                | Prediction: Predicted model state at save points
         """
         result = requests.get(self.host + '/prediction/state', params={'return_format': 'uncertain_data'}, stream='True')
 
@@ -158,7 +158,7 @@ class Session:
         Returns:
             tuple: \\
                 | float: Time of state estimate
-                | dict: Event state
+                | UncertainData: Event state
         """
         result = requests.get(self.host + '/event_state', params={'return_format': 'uncertain_data'}, stream='True')
 
@@ -175,7 +175,7 @@ class Session:
         Returns:
             tuple: \\
                 | float: Time of prediction
-                | list[dict]: predicted Event state
+                | Prediction: predicted Event state
         """
         result = requests.get(self.host + '/prediction/event_state', params={'return_format': 'uncertain_data'}, stream='True')
 
@@ -187,12 +187,12 @@ class Session:
         return (result['prediction_time'], result['event_states'])
 
     def get_predicted_toe(self):
-        """Get the prediction
+        """Get the predicted Time of Event (ToE)
 
         Returns:
             tuple: \\
                 | float: Time of prediction
-                | dict: Prediction
+                | UncertainData: Prediction
 
         See also: get_prediction_status
         """
@@ -225,7 +225,7 @@ class Session:
         Returns:
             tuple: \\
                 | float: Time of state estimate
-                | dict: Performance Metrics
+                | UncertainData: Performance Metrics
         """
         result = requests.get(self.host + '/performance_metrics', params={'return_format': 'uncertain_data'}, stream='True')
 
@@ -242,7 +242,7 @@ class Session:
         Returns:
             tuple: \\
                 | float: Time of prediction
-                | list[dict]: Predicted performance Metrics
+                | Prediction: Predicted performance Metrics
         """
         result = requests.get(self.host + '/prediction/performance_metrics', params={'return_format': 'uncertain_data'}, stream='True')
 
