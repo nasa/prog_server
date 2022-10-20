@@ -26,6 +26,7 @@ app.add_url_rule(PREFIX + '/session/<int:session_id>/data', methods=['POST'], vi
 app.add_url_rule(PREFIX + '/session/<int:session_id>/loading', methods=['GET'], view_func=get_loading_profile)
 app.add_url_rule(PREFIX + '/session/<int:session_id>/initialized', methods=['GET'], view_func=get_initialized)
 app.add_url_rule(PREFIX + '/session/<int:session_id>/prediction/status', methods=['GET'], view_func=get_prediction_status)
+app.add_url_rule(PREFIX + '/session/<int:session_id>/model', methods=['GET'], view_func=get_model)
 
 # Get current state
 app.add_url_rule(PREFIX + '/session/<int:session_id>/state', methods=['GET'], view_func=get_state)
