@@ -23,8 +23,6 @@ class Session():
         self.model_name = model_name
         self.state_est_name = state_est_name
         self.state_est_cfg = state_est_cfg
-        self.load_est_name = load_est_name
-        self.load_est_cfg = load_est_cfg
         self.pred_name = pred_name
         self.initialized = True
         self.results = None
