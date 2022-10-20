@@ -1,7 +1,6 @@
 # Copyright © 2021 United States Government as represented by the Administrator of the
 # National Aeronautics and Space Administration.  All Rights Reserved.
 
-from numpy import cov
 from .models.session import Session
 from .models.load_ests import update_moving_avg
 from prog_models.sim_result import SimResult, LazySimResult
