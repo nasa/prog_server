@@ -6,7 +6,7 @@ info:
   contact:
     name: Chris Teubert
     email: christopher.a.teubert@nasa.gov 
-  version: 1.4
+  version: '1.4'
 paths:
   /v1/session:
     put:
