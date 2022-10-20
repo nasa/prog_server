@@ -71,12 +71,12 @@ def run_example():
     # Step 5: Compare results
     print('\nComparing results')
     print('Mean ToE:')
-    best_toe = 9e99
+    best_toe = 0
     best_plan = None
     for i in range(len(results)):
         mean_toe = results[i].mean['EOD']
         print(f'\tOption {i}: {mean_toe:0.2f}s')
-        if mean_toe < best_toe:
+        if mean_toe > best_toe:
             best_toe = mean_toe
             best_plan = i
     print(f'Best option using method 1: Option {best_plan}')
