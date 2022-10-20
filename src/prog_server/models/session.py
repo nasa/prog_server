@@ -47,7 +47,7 @@ class Session():
             self.model = model_class(**model_cfg)
         except Exception as e:
             abort(400, f"Could not instantiate model with input: {e}")
-        self.model_cfg = self.model.parameters.data
+        self.model_cfg = self.model.parameters
         self.moving_avg_loads = {key : [] for key in self.model.inputs}
 
         # Load Estimator
@@ -135,7 +135,7 @@ class Session():
             'session_id': self.session_id,
             'model': {
                 'type': self.model_name,
-                'cfg': self.model_cfg },
+                'cfg': self.model_cfg.to_json() },
             'state_estimator': {
                 'type': self.state_est_name,
                 'cfg': self.state_est_cfg },
