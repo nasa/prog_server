@@ -254,6 +254,15 @@ class Session:
         return (result['prediction_time'], result['performance_metrics'])
     
     def get_model(self):
+        """
+        Get the configured PrognosticsModel used by the session
+
+        Returns:
+            PrognosticsModel: configured PrognosticsModel used by the session
+
+        Example:
+            m = session.get_model()
+        """
         result = requests.get(self.host + '/model', params={'return_format': 'pickle'}, stream='True')
 
         # If error code throw Exception
