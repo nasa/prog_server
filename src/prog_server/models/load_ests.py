@@ -12,9 +12,12 @@ def Variable(t, x = None, session = None, cfg = None):
     cfg: ordered dictionary starting_time: load. First key should always be 0
         e.g., {'0': {'u1': 0.1}, '100': {'u1': 0.2}, '300': {'u1': 0.3}, '500': {'u1': 0.0}}
     """
-    for time in cfg.keys():
+    keys = list(cfg.keys())
+    keys.reverse()
+    for time in keys:
         if t > float(time):
             return cfg[time]
+    return cfg[keys[-1]]
 
 def Const(t, x = None, session = None, cfg = None):
     """Constant load estimator. Load is assumed to be constant over time. 
