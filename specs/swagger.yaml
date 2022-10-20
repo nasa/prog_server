@@ -6,7 +6,7 @@ info:
   contact:
     name: Chris Teubert
     email: christopher.a.teubert@nasa.gov 
-  version: 1.0.0-2
+  version: 1.4
 paths:
   /v1/session:
     put:
@@ -88,15 +88,14 @@ paths:
         required: true
         schema:
           type: integer
+      - name: return_format
+        description: Format for the returned state
+        in: query
+        required: false
+        schema:
+          $ref: "#/components/schemas/ReturnFormat"
     get:
       description: Get the most recent estimate of the system state for the model used in this session.
-      parameters:
-        - name: return_format
-          description: Format for the returned state
-          in: query
-          required: false
-          schema:
-            $ref: "#/components/schemas/ReturnFormat"
       responses:
         "200":
           description: Okay response
@@ -106,24 +105,6 @@ paths:
                 $ref: "#/components/schemas/StateReturnWithTime" 
         "400":
           description: Session not active, or model not initialized 
-    set:
-      description: Set the system state to some known value. 
-      parameters:
-        - name: format
-          description: Format for the provided state
-          in: query
-          required: false
-          schema: 
-            $ref: "#/components/schemas/ProvidedFormat"
-      responses:
-        "200":
-          description: Okay response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/StateProvided" 
-        "400":
-          description: Session not active, or state not in acceptable form
   /v1/session/{id}/event_state:
     parameters:
       - name: id
@@ -306,12 +287,44 @@ paths:
           description: Okay response 
         "400":
           description: Session not active 
+  /v1/session/{id}/model:
+    parameters:
+      - name: id
+        in: path 
+        required: true
+        schema:
+          type: integer
+    get:
+      parameters:
+        - name: return_format
+          description: Format for the returned state
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - pickle
+              - json
+      responses:
+        "200":
+          description: Okay response 
+          content:
+            application/json:
+              schema: 
+                oneOf:
+                  - type: object
+                    description: bytestream of the pickled [prog_models.PrognosticsModel](https://nasa.github.io/progpy/api_ref/prog_models/PrognosticModel.html) object
+                  - type: object
+                    description: JSON representing configuration of model
+                    example:
+                      {'config_item_1': 3.2, 'config_item_2': 1.75}
+        "400":
+          description: Session not active 
 
 components:
   schemas:
     ToEPrediction:
       type: object
-      required: 
       properties:
         prediction_time:
           type: number
@@ -347,15 +360,6 @@ components:
             schema:
               $ref: "#/components/schemas/StateReturn"
            
-    StateProvided:
-      oneOf:
-        - type: object
-          description: JSON representing state
-          example:
-            {'state1': 3.2, 'state2': 1.75}
-        - type: object
-          description: bytestream of the pickled [prog_models.uncertain_data.UncertainData](https://nasa.github.io/prog_algs/uncertain_data.html) object
-    
     StateReturn:
       oneOf:
         - type: object
@@ -394,7 +398,7 @@ components:
               "cov": [[0.15, 0.003], [-0.025, 0.27]]
             }
         - type: object
-          description: bytestream of the pickled [prog_models.uncertain_data.UncertainData](https://nasa.github.io/prog_algs/uncertain_data.html) object
+          description: bytestream of the pickled [prog_models.uncertain_data.UncertainData](https://nasa.github.io/progpy/api_ref/prog_algs/UncertainData.html) object
     SessionConfiguration:
       type: object
       required:
@@ -405,7 +409,7 @@ components:
           description: Name of the model (from prog_models.models) to use for the session.
         model_cfg:
           type: object
-          description: Configuration JSON for the model. Configuration parameters are specific to the model and can be found in the [prog_models.models documentation](https://nasa.github.io/prog_models/models.html).
+          description: Configuration JSON for the model. Configuration parameters are specific to the model and can be found in the [prog_models.models documentation](https://nasa.github.io/progpy/api_ref/prog_models/IncludedModels.html).
         state_est:
           type: string
           description: Name of the state estimator (from prog_algs.state_estimators) to use for the session.
@@ -420,10 +424,10 @@ components:
           description: Configuration JSON for the predictor. Configuration parameters are specific to the predictor.
         load_est:
           type: string
-          description: Name of the load estimator used for future loading estimation. See [prog_server documentation](https://nasa.github.io/prog_server/load_ests.html) for more information.
+          description: Name of the load estimator used for future loading estimation. See [prog_server documentation](https://nasa.github.io/progpy/api_ref/prog_server/load_ests.html) for more information.
         load_est_cfg:
           type: object
-          description: Configuration JSON for the load estimator used for future loading estimation. See [prog_server documentation](https://nasa.github.io/prog_server/load_ests.html) for more information.
+          description: Configuration JSON for the load estimator used for future loading estimation. See [prog_server documentation](https://nasa.github.io/progpy/api_ref/prog_server/load_ests.html) for more information.
         x0:
           type: object
           description: Initial state as a json where keys match model.states.
@@ -439,12 +443,6 @@ components:
           'load_est_cfg': {'0': {'i': 4.2}, "450": {'i': 2.7}},
           'x0': {'state1': 1.2}
         }
-    ProvidedFormat:
-      type: string
-      enum:
-        - dict
-        - state_container
-        - uncertain_data
     ReturnFormat:
       type: string
       enum:
@@ -480,7 +478,7 @@ components:
           description: Name of the model (from prog_models.models) to use for the session.
         cfg:
           type: object
-          description: Configuration JSON for the model. Configuration parameters are specific to the model and can be found in the [prog_models.models documentation](https://nasa.github.io/prog_models/models.html).
+          description: Configuration JSON for the model. Configuration parameters are specific to the model and can be found in the [prog_models.models documentation](https://nasa.github.io/progpy/api_ref/prog_models/IncludedModels.html).
 
     Sessions: 
       type: array
