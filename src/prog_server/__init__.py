@@ -3,7 +3,7 @@
 
 from .models.prog_server import server
 
-__version__ = '1.3.0'
+__version__ = '1.4.0'
 
 def run(**kwargs):
     """
@@ -12,6 +12,7 @@ def run(**kwargs):
     Args:
         host (str, optional): Server host. Defaults to '127.0.0.1'.
         port (int, optional): Server port. Defaults to 5000.
+        debug (bool, optional): If the server is started in debug mode
     """
     server.run(**kwargs)
 
@@ -22,6 +23,7 @@ def start(**kwargs):
     Args:
         host (str, optional): Server host. Defaults to '127.0.0.1'.
         port (int, optional): Server port. Defaults to 5000.
+        debug (bool, optional): If the server is started in debug mode
     """
     server.start(**kwargs)
 

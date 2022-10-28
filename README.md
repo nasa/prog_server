@@ -3,15 +3,15 @@
 [![GitHub License](https://img.shields.io/badge/License-NOSA-green)](https://github.com/nasa/prog_server/blob/master/license.pdf)
 [![GitHub Releases](https://img.shields.io/github/release/nasa/prog_server.svg)](https://github.com/nasa/prog_server/releases)
 
-The NASA Prognostics As-A-Service (PaaS) Sandbox is a simplified implementation of a Software Oriented Architecture (SOA) for performing prognostics (estimation of time until events and future system states) of engineering systems. The PaaS Sandbox is a wrapper around the [Prognostics Algorithms Package](https://github.com/nasa/prog_algs) and [Prognostics Models Package](https://github.com/nasa/prog_models), allowing one or more users to access the features of these packages through a REST API. The package is intended to be used as a research tool to prototype and benchmark Prognostics As-A-Service (PaaS) architectures and work on the challenges facing such architectures, including Generality, Communication, Security, Environmental Complexity, Utility, and Trust.
+The NASA Prognostics As-A-Service (PaaS) Sandbox is a simplified implementation of a Software Oriented Architecture (SOA) for performing prognostics (estimation of time until events and future system states) of engineering systems. The PaaS Sandbox is a wrapper around the [Prognostics Algorithms Package](https://nasa.github.io/progpy/prog_algs_guide.html) and [Prognostics Models Package](https://nasa.github.io/progpy/prog_models_guide.html), allowing one or more users to access the features of these packages through a REST API. The package is intended to be used as a research tool to prototype and benchmark Prognostics As-A-Service (PaaS) architectures and work on the challenges facing such architectures, including Generality, Communication, Security, Environmental Complexity, Utility, and Trust.
 
-This is designed to be used with the [Prognostics Algorithms Package](https://github.com/nasa/prog_algs) and [Prognostics Models Package](https://github.com/nasa/prog_models).
+This is designed to be used with the [Prognostics Algorithms Package](https://nasa.github.io/progpy/prog_algs_guide.html) and [Prognostics Models Package](https://nasa.github.io/progpy/prog_models_guide.html).
 
 ## Installation
 `pip install prog_server`
 
-## [Documentation](https://nasa.github.io/prog_server/)
-See documentation [here](https://nasa.github.io/prog_server/)
+## [Documentation](https://nasa.github.io/progpy/prog_server_guide.html)
+See documentation [here](https://nasa.github.io/progpy/prog_server_guide.html)
 
 ## Citing this repository
 Use the following to cite this repository:
@@ -20,16 +20,16 @@ Use the following to cite this repository:
 @misc{2021_nasa_prog_models,
     author    = {Christopher Teubert and Jason Watkins and Katelyn Jarvis},
     title     = {Prognostics As-A-Service (PaaS) Sandbox},
-    month     = May,
+    month     = Oct,
     year      = 2022,
-    version   = {1.3},
+    version   = {1.4},
     url       = {https://github.com/nasa/prog_server}
     }
 ```
 
 The corresponding reference should look like this:
 
-C. Teubert, J. Watkins, K. Jarvis, Prognostics As-A-Service (PaaS) Sandbox, v1.3, May 2022. URL https://github.com/nasa/prog_server.
+C. Teubert, J. Watkins, K. Jarvis, Prognostics As-A-Service (PaaS) Sandbox, v1.4, Oct 2022. URL https://github.com/nasa/prog_server.
 
 ## Notices
 Copyright © 2021 United States Government as represented by the Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.

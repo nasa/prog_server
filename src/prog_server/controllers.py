@@ -1,7 +1,6 @@
 # Copyright © 2021 United States Government as represented by the Administrator of the
 # National Aeronautics and Space Administration.  All Rights Reserved.
 
-from numpy import cov
 from .models.session import Session
 from .models.load_ests import update_moving_avg
 from prog_models.sim_result import SimResult, LazySimResult
@@ -612,3 +611,16 @@ def get_predicted_toe(session_id):
         return jsonify({
             "prediction_time": sessions[session_id].results[1]['time'],
             "time_of_event": toe})
+
+def get_model(session_id):
+    if session_id not in sessions:
+        abort(400, f'Session {session_id} does not exist or has ended')
+    
+    mode = request.args.get('return_format', 'json')
+
+    if mode == 'json':
+        return sessions[session_id].model.to_json()
+    elif mode == 'pickle':
+        return pickle.dumps(sessions[session_id].model)
+    else:
+        abort(400, f'Invalid return mode: {mode}')
