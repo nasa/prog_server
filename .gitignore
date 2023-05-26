@@ -8,3 +8,5 @@ src/prog_server.egg-info/
 dist/
 
 build/
+
+.vscode/
