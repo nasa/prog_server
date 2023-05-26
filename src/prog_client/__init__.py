@@ -2,4 +2,4 @@
 # National Aeronautics and Space Administration.  All Rights Reserved.
 
 from .session import Session
-__version__ = '1.3.0'
+__version__ = '1.5.0-pre'
