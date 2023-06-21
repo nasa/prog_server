@@ -17,19 +17,19 @@ See documentation [here](https://nasa.github.io/progpy/prog_server_guide.html)
 Use the following to cite this repository:
 
 ```
-@misc{2021_nasa_prog_models,
+@misc{2023_nasa_prog_models,
     author    = {Christopher Teubert and Jason Watkins and Katelyn Jarvis},
     title     = {Prognostics As-A-Service (PaaS) Sandbox},
-    month     = Oct,
-    year      = 2022,
-    version   = {1.4},
+    month     = May,
+    year      = 2023,
+    version   = {1.5},
     url       = {https://github.com/nasa/prog_server}
     }
 ```
 
 The corresponding reference should look like this:
 
-C. Teubert, J. Watkins, K. Jarvis, Prognostics As-A-Service (PaaS) Sandbox, v1.4, Oct 2022. URL https://github.com/nasa/prog_server.
+C. Teubert, J. Watkins, K. Jarvis, Prognostics As-A-Service (PaaS) Sandbox, v1.5, May 2023. URL https://github.com/nasa/prog_server.
 
 ## Notices
 Copyright © 2021 United States Government as represented by the Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
