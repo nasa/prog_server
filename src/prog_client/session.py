@@ -4,8 +4,8 @@
 import requests, json
 import urllib3
 import pickle
-from prog_algs.uncertain_data import UncertainData
-import prog_models
+from progpy.uncertain_data import UncertainData
+from progpy.utils import containers
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -103,7 +103,7 @@ class Session:
         if isinstance(x, UncertainData):
             x = pickle.dumps(x)
             input_format = 'uncertain_data'
-        elif isinstance(x, prog_models.utils.containers.DictLikeMatrixWrapper):
+        elif isinstance(x, containers.DictLikeMatrixWrapper):
             x = pickle.dumps(x)
             input_format = 'state_container'
         elif isinstance(x, dict):
