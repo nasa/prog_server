@@ -40,7 +40,7 @@ setup(
     packages=find_packages(where='src'),
     python_requires='>=3.7, <3.12',
     install_requires=[
-        'prog_algs',
+        'progpy',
         'requests',
         'urllib3',
         'flask'

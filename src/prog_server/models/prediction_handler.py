@@ -2,9 +2,9 @@
 # National Aeronautics and Space Administration.  All Rights Reserved.
 
 from concurrent.futures import ThreadPoolExecutor as PoolExecutor
+from copy import deepcopy
 from datetime import datetime
 from flask import current_app as app
-from copy import deepcopy
 
 pool = PoolExecutor(max_workers=5)
 
