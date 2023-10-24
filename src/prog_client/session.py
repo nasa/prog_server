@@ -12,19 +12,19 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class Session:
     """
-    Create a new Session in `prog_server`.
+    Create a new Session in `prog_server`
 
     Args:
         model (str): The model to use for this session (e.g., batt)
-        host (str, optional): Host address for PaaS Service. Defaults to '127.0.0.1'.
+        host (str, optional): Host address for PaaS Service. Defaults to '127.0.0.1'
         port (int, optional): Port for PaaS Service. Defaults to 5000.
         model_cfg (dict, optional): Configuration for ProgModel.
         x0 (dict, optional): Initial state for ProgModel.
         load_est (str, optional): Load estimator to use.
         load_est_cfg (dict, optional): Configuration for load estimator.
-        state_est (str, optional): State Estimator to use (e.g., ParticleFilter). Class name for state estimator in `prog_algs.state_estimators`
+        state_est (str, optional): State Estimator to use (e.g., ParticleFilter). Class name for state estimator in `progpy.state_estimators`
         state_est_cfg (dict, optional): Configuration for state estimator.
-        pred (str, optional): Prediction algorithm to use (e.g., MonteCarlo). Class name for prediction algorithm in `prog_algs.predictors`
+        pred (str, optional): Prediction algorithm to use (e.g., MonteCarlo). Class name for prediction algorithm in `progpy.predictors`
         pred_cfg (dict, optional): Configuration for prediction algorithm.
 
     Use:
