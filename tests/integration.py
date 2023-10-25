@@ -3,6 +3,8 @@
 import unittest
 import time
 import prog_client, prog_server
+from progpy.uncertain_data import MultivariateNormalDist
+from progpy.models import ThrownObject
 
 TIMEOUT = 10  # Server startup timeout in seconds
 
@@ -20,7 +22,6 @@ class IntegrationTest(unittest.TestCase):
         raise Exception("Server startup timeout")
 
     def test_integration(self):
-        from prog_models.models import ThrownObject
         noise = {'x': 0.1, 'v': 0.1}
         if 'max_x' in ThrownObject.states:
             # max_x was removed in the dev branch
@@ -40,7 +41,6 @@ class IntegrationTest(unittest.TestCase):
         for key, value in x.mean.items():
             self.assertAlmostEqual(value, x2[key])
 
-        from prog_algs.uncertain_data import MultivariateNormalDist
         mean = {'x': 2, 'v': 40}
         cov = [[0.1, 0], [0, 0.1]]
         x3 = MultivariateNormalDist(mean.keys(), list(mean.values()), cov)
@@ -167,7 +167,6 @@ class IntegrationTest(unittest.TestCase):
 
         # Extra state
         x0 = {'x': 1.2, 'v': 2.3, 'max_y': 4.5}
-        from prog_models.models import ThrownObject
         if 'max_x' in ThrownObject.states:
             # max_x was removed in recent version
             x0['max_x'] = 1.2

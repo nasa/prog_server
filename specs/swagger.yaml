@@ -2,7 +2,7 @@
 openapi: 3.0.2
 info:
   title: Prognostics As A Service (PaaS) Sandbox (prog_server)
-  description: The PaaS Sandbox (a.k.a., prog_server) exposes a REST API that enables prognostics using the NASA PCoE prog_models and prog_algs packages 
+  description: The PaaS Sandbox (a.k.a., prog_server) exposes a REST API that enables prognostics using the NASA PCoE progpy and progpy packages 
   contact:
     name: Chris Teubert
     email: christopher.a.teubert@nasa.gov 
@@ -313,7 +313,7 @@ paths:
               schema: 
                 oneOf:
                   - type: object
-                    description: bytestream of the pickled [prog_models.PrognosticsModel](https://nasa.github.io/progpy/api_ref/prog_models/PrognosticModel.html) object
+                    description: bytestream of the pickled [progpy.PrognosticsModel](https://nasa.github.io/progpy/api_ref/progpy/PrognosticModel.html) object
                   - type: object
                     description: JSON representing configuration of model
                     example:
@@ -398,7 +398,7 @@ components:
               "cov": [[0.15, 0.003], [-0.025, 0.27]]
             }
         - type: object
-          description: bytestream of the pickled [prog_models.uncertain_data.UncertainData](https://nasa.github.io/progpy/api_ref/prog_algs/UncertainData.html) object
+          description: bytestream of the pickled [progpy.uncertain_data.UncertainData](https://nasa.github.io/progpy/api_ref/progpy/UncertainData.html) object
     SessionConfiguration:
       type: object
       required:
@@ -406,19 +406,19 @@ components:
       properties:
         model:
           type: string
-          description: Name of the model (from prog_models.models) to use for the session.
+          description: Name of the model (from progpy.models) to use for the session.
         model_cfg:
           type: object
-          description: Configuration JSON for the model. Configuration parameters are specific to the model and can be found in the [prog_models.models documentation](https://nasa.github.io/progpy/api_ref/prog_models/IncludedModels.html).
+          description: Configuration JSON for the model. Configuration parameters are specific to the model and can be found in the [progpy.models documentation](https://nasa.github.io/progpy/api_ref/progpy/IncludedModels.html).
         state_est:
           type: string
-          description: Name of the state estimator (from prog_algs.state_estimators) to use for the session.
+          description: Name of the state estimator (from progpy.state_estimators) to use for the session.
         state_est_cfg:
           type: object
           description: Configuration JSON for the state estimator. Configuration parameters are specific to the state estimator.
         pred:
           type: string
-          description: Name of the predictor (from prog_algs.predictors) to use for the session.
+          description: Name of the predictor (from progpy.predictors) to use for the session.
         pred_cfg:
           type: object
           description: Configuration JSON for the predictor. Configuration parameters are specific to the predictor.
@@ -475,10 +475,10 @@ components:
       properties:
         type:
           type: string
-          description: Name of the model (from prog_models.models) to use for the session.
+          description: Name of the model (from progpy.models) to use for the session.
         cfg:
           type: object
-          description: Configuration JSON for the model. Configuration parameters are specific to the model and can be found in the [prog_models.models documentation](https://nasa.github.io/progpy/api_ref/prog_models/IncludedModels.html).
+          description: Configuration JSON for the model. Configuration parameters are specific to the model and can be found in the [progpy.models documentation](https://nasa.github.io/progpy/api_ref/progpy/IncludedModels.html).
 
     Sessions: 
       type: array

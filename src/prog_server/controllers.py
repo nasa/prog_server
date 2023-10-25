@@ -1,11 +1,11 @@
 # Copyright © 2021 United States Government as represented by the Administrator of the
 # National Aeronautics and Space Administration.  All Rights Reserved.
 
-from .models.session import Session
-from .models.load_ests import update_moving_avg
-from prog_models.sim_result import SimResult, LazySimResult
-from prog_algs.uncertain_data import UnweightedSamples
-from prog_algs.predictors import Prediction, UnweightedSamplesPrediction
+from prog_server.models.session import Session
+from prog_server.models.load_ests import update_moving_avg
+from progpy.sim_result import SimResult, LazySimResult
+from progpy.uncertain_data import UnweightedSamples
+from progpy.predictors import Prediction, UnweightedSamplesPrediction
 from flask import request, abort, jsonify
 from flask import current_app as app
 import json

@@ -1,12 +1,12 @@
 # Copyright © 2021 United States Government as represented by the Administrator of the
 # National Aeronautics and Space Administration.  All Rights Reserved.
 
-from statistics import mean
-from numpy.random import normal
 from flask import abort
 from functools import partial
+from numpy.random import normal
+from statistics import mean
 
-def Variable(t, x = None, session = None, cfg = None):
+def Variable(t, x=None, session=None, cfg=None):
     """Variable (i.e. piecewise) load estimator. The piecewise load function is defined in the load_est_cfg as ordered dictionary starting_time: load. 
 
     cfg: ordered dictionary starting_time: load. First key should always be 0
@@ -19,7 +19,7 @@ def Variable(t, x = None, session = None, cfg = None):
             return cfg[time]
     return cfg[keys[-1]]
 
-def Const(t, x = None, session = None, cfg = None):
+def Const(t, x=None, session=None, cfg=None):
     """Constant load estimator. Load is assumed to be constant over time. 
 
     cfg: dictionary with one key (load) where value is the constant load (dict)
@@ -27,7 +27,7 @@ def Const(t, x = None, session = None, cfg = None):
     """
     return cfg['load']
 
-def MovingAverage(t, x=None, session = None, cfg = None):
+def MovingAverage(t, x=None, session=None, cfg=None):
     """Moving average load estimator. Load is estimated as the mean of the last `window_size` samples. Noise can be added using the following optional configuration parameters:
 
         * base_std: standard deviation of noise
@@ -40,7 +40,7 @@ def MovingAverage(t, x=None, session = None, cfg = None):
     load = {key : mean(session.moving_avg_loads[key]) for key in session.model.inputs} 
     return {key : normal(load[key], std) for key in load.keys()}
 
-def update_moving_avg(u, session = None, cfg = {}):
+def update_moving_avg(u, session=None, cfg={}):
     for key in session.model.inputs:
         session.moving_avg_loads[key].append(u[key])
         if len(session.moving_avg_loads[key]) > cfg.get('window_size', 10):
@@ -51,5 +51,5 @@ def build_load_est(name, cfg, session):
         abort(400, f"{name} is not a valid load estimation method")
     load_est_fcn = globals()[name]
     return partial(load_est_fcn,
-        cfg = cfg,
-        session = session)
+        cfg=cfg,
+        session=session)
