@@ -2,7 +2,7 @@
 # National Aeronautics and Space Administration.  All Rights Reserved.
 
 from .models.prog_server import server
-__version__ = '1.6.0-pre'
+__version__ = '1.7.0-pre'
 
 def run(**kwargs):
     """
