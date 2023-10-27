@@ -24,7 +24,7 @@ class ProgServer():
 
         Keyword Args:
             host (str, optional): Server host. Defaults to '127.0.0.1'.
-            port (int, optional): Server port. Defaults to 18555.
+            port (int, optional): Server port. Defaults to 8555.
             debug (bool, optional): If the server is started in debug mode
             models (dict[str, PrognosticsModel]): a dictionary of extra models to consider. The key is the name used to identify it. 
         """
