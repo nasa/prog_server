@@ -32,7 +32,7 @@ class Session:
     """
 
     _base_url = '/api/v1'
-    def __init__(self, model, host = '127.0.0.1', port=5000, **kwargs):
+    def __init__(self, model, host = '127.0.0.1', port=8555, **kwargs):
         self.host = 'http://' + host + ':' + str(port) + Session._base_url
 
         # Process kwargs with json value

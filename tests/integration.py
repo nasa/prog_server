@@ -1,25 +1,18 @@
 # Copyright © 2021 United States Government as represented by the Administrator of the National Aeronautics and Space Administration. All Rights Reserved.
 
-import unittest
 import time
+import unittest
 import prog_client, prog_server
+from progpy import PrognosticsModel
 from progpy.uncertain_data import MultivariateNormalDist
 from progpy.models import ThrownObject
 
-TIMEOUT = 10  # Server startup timeout in seconds
 
 
 class IntegrationTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         prog_server.start()
-
-        for i in range(TIMEOUT):
-            if prog_server.is_running():
-                return
-            time.sleep(1)
-        prog_server.stop()
-        raise Exception("Server startup timeout")
 
     def test_integration(self):
         noise = {'x': 0.1, 'v': 0.1}
@@ -172,16 +165,68 @@ class IntegrationTest(unittest.TestCase):
             x0['max_x'] = 1.2
         with self.assertRaises(Exception):
             session = prog_client.Session('ThrownObject', x0 = x0)
-    
+
+    def test_custom_models(self):
+        # Restart server with model
+        prog_server.stop()
+        ball = ThrownObject(thrower_height=1.5, throwing_speed=20)
+        prog_server.start(models={'ball': ball}, port=9883)
+        ball_session = prog_client.Session('ball', port=9883)
+
+        # Check initial state - should equal model state
+        t, x = ball_session.get_state()
+        gt_mean = ball.initialize()
+        x_mean = x.mean
+        self.assertEqual(x_mean['x'], gt_mean['x'])
+        self.assertEqual(x_mean['v'], gt_mean['v'])
+
+        # Iterate forward 1 second and compare
+        gt_mean = ball.next_state(gt_mean, None, 1)
+        ball_session.send_data(time=1, x=gt_mean['x'])
+        t, x = ball_session.get_state()
+        x_mean = x.mean
+        self.assertEqual(x_mean['x'], gt_mean['x'])
+        self.assertEqual(x_mean['v'], gt_mean['v'])
+        
+        # Restart (to reset port)
+        prog_server.stop()
+        prog_server.start()
+
+
+        # Later (not yet supported) repeat test model class
+        # class TestModel(PrognosticsModel):
+        #     inputs = ['u']
+        #     states =  ['x']
+        #     outputs = ['x+1']
+
+        #     default_parameters = {
+        #         'x0': {
+        #             'x': 0
+        #         }
+        #     }
+
+        #     def next_state(self, x, u, dt):
+        #         x['x'] = u['u']
+        #         return x
+
+        #     def output(self, x):
+        #         return self.OutputContainer({'x+1': x['x']+1})
+
+        # prog_server.start(models={'test': TestModel})
+        # test_session = prog_client.Session('TestModel')
+
+        # # Check initial state - should equal model state
+        # z = test_session.get_output()
+        # self.assertEqual(z['x+1'], 1)
+
+        # # Iterate forward 1 second and compare
+        # test_session.send_data(time=1, u=5)
+        # z = test_session.get_output()
+        # self.assertEqual(z['x+1'], 6)
+
     @classmethod
     def tearDownClass(cls):
         prog_server.stop()
-
-        # Wait for shutdown to complete
-        for i in range(TIMEOUT):
-            if not prog_server.is_running():
-                return
-            time.sleep(1)
 
 # This allows the module to be executed directly    
 def run_tests():
