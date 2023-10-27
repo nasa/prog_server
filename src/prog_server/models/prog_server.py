@@ -1,13 +1,11 @@
 # Copyright © 2021 United States Government as represented by the Administrator of the
 # National Aeronautics and Space Administration.  All Rights Reserved.
 
-from copy import deepcopy
 from prog_server.app import app
 from prog_server.models import session
 
 from multiprocessing import Process
 import requests
-from progpy import PrognosticsModel
 
 DEFAULT_PORT = 8555
 DEFAULT_HOST = '127.0.0.1'
