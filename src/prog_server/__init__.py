@@ -12,7 +12,7 @@ def run(**kwargs):
 
     Args:
         host (str, optional): Server host. Defaults to '127.0.0.1'.
-        port (int, optional): Server port. Defaults to 5000.
+        port (int, optional): Server port. Defaults to 8555.
         debug (bool, optional): If the server is started in debug mode
     """
     server.run(**kwargs)
@@ -26,7 +26,7 @@ def start(timeout=10, **kwargs):
 
     Keyword Args:
         host (str, optional): Server host. Defaults to '127.0.0.1'.
-        port (int, optional): Server port. Defaults to 5000.
+        port (int, optional): Server port. Defaults to 8555.
         debug (bool, optional): If the server is started in debug mode
     """
     server.start(**kwargs)
