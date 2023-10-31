@@ -4,10 +4,14 @@
 from prog_server.models.load_ests import build_load_est
 from prog_server.models.prediction_handler import add_to_predict_queue
 
+from copy import deepcopy
 from flask import current_app as app
 from flask import abort
-from progpy import models, state_estimators, predictors
+from progpy import models, state_estimators, predictors, PrognosticsModel
 from threading import Lock
+
+extra_models = {}
+
 
 class Session():
     def __init__(self, session_id, 
@@ -34,15 +38,28 @@ class Session():
 
         # Model
         try:
-            model_class = getattr(models, model_name)
+            if model_name in extra_models:
+                model_class = extra_models[model_name]
+            else:
+                model_class = getattr(models, model_name)
         except AttributeError:
             abort(400, f"Invalid model name {model_name}")
 
         app.logger.debug(f"Creating Model of type {model_name}")
-        try:
-            self.model = model_class(**model_cfg)
-        except Exception as e:
-            abort(400, f"Could not instantiate model with input: {e}")
+        if isinstance(model_class, type) and issubclass(model_class, PrognosticsModel):
+            # model_class is a class, either from progpy or custom classes
+            try:
+                self.model = model_class(**model_cfg)
+            except Exception as e:
+                abort(400, f"Could not instantiate model with input: {e}")
+        elif isinstance(model_class, PrognosticsModel):
+            # model_class is an instance of a PrognosticsModel- use the object instead
+            # This happens for user models that are added to the server at startup.
+            self.model = deepcopy(model_class)
+            # Apply any configuration changes, overriding model config.
+            self.model.parameters.update(model_cfg)
+        else:
+            abort(400, f"Invalid model type {type(model_name)} for model {model_name}. For custom classes, the model must be either an instantiated PrognosticsModel subclass or classmame")
         self.model_cfg = self.model.parameters
         self.moving_avg_loads = {key : [] for key in self.model.inputs}
 
