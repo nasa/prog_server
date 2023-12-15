@@ -8,7 +8,6 @@ from progpy.uncertain_data import MultivariateNormalDist
 from progpy.models import ThrownObject
 
 
-
 class IntegrationTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -57,6 +56,12 @@ class IntegrationTest(unittest.TestCase):
         for key, value in es.mean.items():
             self.assertAlmostEqual(value, es0[key])
 
+        # Output
+        (_, z) = session.get_output()
+        z0 = m.output(x0)
+        for key, value in z.mean.items():
+            self.assertAlmostEqual(value, z0[key])
+
         # Performance Metrics
         (_, pm) = session.get_performance_metrics()
         self.assertDictEqual(pm.mean, {})
@@ -84,7 +89,7 @@ class IntegrationTest(unittest.TestCase):
         self.assertAlmostEqual(ToE.mean['impact'], 7.9, delta=0.1)
 
         # Prep Prediction
-        (times, _, sim_states, _, sim_es) = m.simulate_to_threshold(lambda t,x=None: {}, threshold_keys='impact', save_freq=0.1, dt=0.1)
+        (times, _, sim_states, sim_z, sim_es) = m.simulate_to_threshold(lambda t,x=None: {}, threshold_keys='impact', save_freq=0.1, dt=0.1)
 
         # Prediction - future states
         (t_p, states) = session.get_predicted_state()
@@ -96,15 +101,25 @@ class IntegrationTest(unittest.TestCase):
                 if i < len(sim_states):  # may have one or two more states
                     self.assertAlmostEqual(value, sim_states[i][key], delta = (i+1)/15, msg=f"snapshot at {i/10}s for key {key} should be {sim_states[i][key]} was {value}")
 
+        # Prediction - future outputs
+        (t_p, outputs) = session.get_predicted_output()
+        self.assertAlmostEqual(t_p, -1e-99)
+
+        for i in range(len(outputs.times)):
+            self.assertAlmostEqual(outputs.times[i], i/10, delta=0.2)
+            for key, value in outputs.snapshot(i).mean.items():
+                if i < len(sim_z):  # may have one or two more states
+                    self.assertAlmostEqual(value, sim_z[i][key], delta=(i+1)/20, msg=f"snapshot at {i/10}s for key {key} should be {sim_z[i][key]} was {value}")
+
         # Prediction - future event_states
         (t_p, states) = session.get_predicted_event_state()
         self.assertAlmostEqual(t_p, -1e-99)
 
         for i in range(len(states.times)):
-            self.assertAlmostEqual(states.times[i], i/10, delta = 0.2)
+            self.assertAlmostEqual(states.times[i], i/10, delta=0.2)
             for key, value in states.snapshot(i).mean.items():
                 if i < len(sim_es):  # may have one or two more states
-                    self.assertAlmostEqual(value, sim_es[i][key], delta = (i+1)/20, msg=f"snapshot at {i/10}s for key {key} should be {sim_es[i][key]} was {value}")
+                    self.assertAlmostEqual(value, sim_es[i][key], delta=(i+1)/20, msg=f"snapshot at {i/10}s for key {key} should be {sim_es[i][key]} was {value}")
 
         # Prediction - future performance metrics
         (t_p, states) = session.get_predicted_performance_metrics()
@@ -144,7 +159,7 @@ class IntegrationTest(unittest.TestCase):
 
         # invalid state est
         with self.assertRaises(Exception):
-            session = prog_client.Session('ThrownObject', state_est = 'fake_est')
+            session = prog_client.Session('ThrownObject', state_est='fake_est')
 
         # invalid predictor
         with self.assertRaises(Exception):
@@ -152,11 +167,11 @@ class IntegrationTest(unittest.TestCase):
 
         # invalid load est
         with self.assertRaises(Exception):
-            session = prog_client.Session('ThrownObject', load_est = 'fake_est')
+            session = prog_client.Session('ThrownObject', load_est='fake_est')
         
         # Missing initial state
         with self.assertRaises(Exception):
-            session = prog_client.Session('ThrownObject', x0 = {'x': 1.2})
+            session = prog_client.Session('ThrownObject', x0={'x': 1.2})
 
         # Extra state
         x0 = {'x': 1.2, 'v': 2.3, 'max_y': 4.5}
@@ -164,7 +179,7 @@ class IntegrationTest(unittest.TestCase):
             # max_x was removed in recent version
             x0['max_x'] = 1.2
         with self.assertRaises(Exception):
-            session = prog_client.Session('ThrownObject', x0 = x0)
+            session = prog_client.Session('ThrownObject', x0=x0)
 
     def test_custom_models(self):
         # Restart server with model
