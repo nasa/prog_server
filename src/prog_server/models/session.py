@@ -7,6 +7,7 @@ from prog_server.models.prediction_handler import add_to_predict_queue
 from copy import deepcopy
 from flask import current_app as app
 from flask import abort
+import json
 from progpy import models, state_estimators, predictors, PrognosticsModel
 from threading import Lock
 
@@ -14,11 +15,11 @@ extra_models = {}
 
 
 class Session():
-    def __init__(self, session_id, 
-            model_name, model_cfg = {}, x0 = None,
-            state_est_name = 'ParticleFilter', state_est_cfg = {}, 
-            load_est_name = 'MovingAverage', load_est_cfg = {},
-            pred_name = 'MonteCarlo', pred_cfg = {}):
+    def __init__(self, session_id,
+            model_name, model_cfg={}, x0=None,
+            state_est_name='ParticleFilter', state_est_cfg={},
+            load_est_name='MovingAverage', load_est_cfg={},
+            pred_name='MonteCarlo', pred_cfg={}):
         
         # Save config
         self.session_id = session_id
@@ -61,10 +62,10 @@ class Session():
         else:
             abort(400, f"Invalid model type {type(model_name)} for model {model_name}. For custom classes, the model must be either an instantiated PrognosticsModel subclass or classmame")
         self.model_cfg = self.model.parameters
-        self.moving_avg_loads = {key : [] for key in self.model.inputs}
+        self.moving_avg_loads = {key: [] for key in self.model.inputs}
 
         # Load Estimator
-        self.set_load_estimator(load_est_name, load_est_cfg, predict_queue = False)
+        self.set_load_estimator(load_est_name, load_est_cfg, predict_queue=False)
 
         # Initial State
         if x0 is None:
@@ -93,7 +94,8 @@ class Session():
         
         # State Estimator
         if self.initialized:
-            # If state is initialized, then state estimator and predictor can be created without data
+            # If state is initialized, then state estimator and predictor can
+            # be created without data
             self.__initialize(x0)
         else:
             # Otherwise, will have to be initialized later
@@ -103,10 +105,12 @@ class Session():
             except AttributeError:  
                 abort(400, f"Invalid state estimator name {state_est_name}")
 
-    def __initialize(self, x0, predict_queue = True):
+    def __initialize(self, x0, predict_queue=True):
         app.logger.debug("Initializing...")
         state_est_class = getattr(state_estimators, self.state_est_name)
         app.logger.debug(f"Creating State Estimator of type {self.state_est_name}")
+        if isinstance(x0, str):
+            x0 = json.loads(x0)
         if set(self.model.states) != set(list(x0.keys())):
             abort(400, f"Initial state must have every state in model. states. Had {list(x0.keys())}, needed {self.model.states}")
 
@@ -124,7 +128,7 @@ class Session():
         # Initializes (or re-initializes) state estimator
         self.__initialize(x)
 
-    def set_load_estimator(self, name, cfg, predict_queue = True):
+    def set_load_estimator(self, name, cfg, predict_queue=True):
         app.logger.debug(f"Setting load estimator to {name}")
         self.load_est_name = name
         self.load_est_cfg = cfg
@@ -148,15 +152,15 @@ class Session():
             'session_id': self.session_id,
             'model': {
                 'type': self.model_name,
-                'cfg': self.model_cfg.to_json() },
+                'cfg': self.model_cfg.to_json()},
             'state_estimator': {
                 'type': self.state_est_name,
-                'cfg': self.state_est_cfg },
+                'cfg': self.state_est_cfg},
             'load_estimator': {
                 'type': self.load_est_name,
-                'cfg': self.load_est_cfg },
+                'cfg': self.load_est_cfg},
             'predictor': {
                 'type': self.pred_name,
-                'cfg': self.pred_cfg },
+                'cfg': self.pred_cfg},
             'initialized': self.initialized
         }

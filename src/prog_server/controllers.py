@@ -1,16 +1,15 @@
 # Copyright © 2021 United States Government as represented by the Administrator of the
 # National Aeronautics and Space Administration.  All Rights Reserved.
-
+from concurrent.futures._base import TimeoutError
+from flask import request, abort, jsonify
+from flask import current_app as app
+import json
+import pickle
 from prog_server.models.session import Session
 from prog_server.models.load_ests import update_moving_avg
 from progpy.sim_result import SimResult, LazySimResult
 from progpy.uncertain_data import UnweightedSamples
 from progpy.predictors import Prediction, UnweightedSamplesPrediction
-from flask import request, abort, jsonify
-from flask import current_app as app
-import json
-from concurrent.futures._base import TimeoutError
-import pickle
 
 session_count = 0
 sessions = {}
@@ -24,7 +23,6 @@ def new_session():
     Create a new session.
 
     Args:
-
     """
     global session_count
     app.logger.debug("Creating New Session")
@@ -32,12 +30,12 @@ def new_session():
     if 'model' not in request.form:
         abort(400, 'model must be specified in request body')
 
-    model_name = request.form['model'] # Replace with actual type name
+    model_name = request.form['model']
 
     session_id = session_count
     session_count += 1
 
-    try: 
+    try:
         model_cfg = json.loads(request.form.get('model_cfg', '{}'))
     except json.decoder.JSONDecodeError:
         abort(400, 'model_cfg must be valid JSON')
@@ -57,15 +55,17 @@ def new_session():
     except json.decoder.JSONDecodeError:
         abort(400, 'state_est_cfg must be valid JSON')
 
-    sessions[session_id] = Session(session_id, model_name,
-        model_cfg = model_cfg,
-        x0 = request.form.get('x0', None),
-        state_est_name = request.form.get('state_est', 'ParticleFilter'),
-        state_est_cfg = state_est_cfg,
-        load_est_name = request.form.get('load_est', 'MovingAverage'),
-        load_est_cfg = load_est_cfg,
-        pred_name = request.form.get('pred', 'MonteCarlo'),
-        pred_cfg = pred_cfg
+    sessions[session_id] = Session(
+        session_id,
+        model_name,
+        model_cfg=model_cfg,
+        x0=request.form.get('x0', None),
+        state_est_name=request.form.get('state_est', 'ParticleFilter'),
+        state_est_cfg=state_est_cfg,
+        load_est_name=request.form.get('load_est', 'MovingAverage'),
+        load_est_cfg=load_est_cfg,
+        pred_name=request.form.get('pred', 'MonteCarlo'),
+        pred_cfg=pred_cfg
     )
     
     return jsonify(sessions[session_id].to_dict()), 201
@@ -179,8 +179,8 @@ def send_data(session_id):
     session = sessions[session_id]
 
     try:
-        inputs = {key : float(values[key]) for key in session.model.inputs}
-        outputs = {key : float(values[key]) for key in session.model.outputs}
+        inputs = {key: float(values[key]) for key in session.model.inputs}
+        outputs = {key: float(values[key]) for key in session.model.outputs}
         time = float(values['time'])
     except KeyError:
         abort(400, f'Data missing for session {session_id}. Expected inputs: {session.model.inputs} and outputs: {session.model.outputs}. Received {list(values.keys())}')
@@ -256,13 +256,14 @@ def get_prediction_status(session_id):
                     if except_msg != "None":
                         status['exceptions'].append(except_msg)
                 except TimeoutError:
-                    # Timeout Error = No error in thread (request for exceptions timed out)
+                    # Timeout Error = No error in thread
+                    # (request for exceptions timed out)
                     pass
                 status['in progress'] += future.running()
     with sessions[session_id].locks['results']:
-        if sessions[session_id].results is not None: 
+        if sessions[session_id].results is not None:
             status['last prediction'] = sessions[session_id].results[0].strftime("%c")
-    return jsonify(status)  
+    return jsonify(status)
 
 # Get current
 def get_state(session_id):
@@ -395,7 +396,7 @@ def get_perf_metrics(session_id):
 
         return jsonify({
             "time": sessions[session_id].state_est.t,
-            "performance_metrics": pm})   
+            "performance_metrics": pm})
 
 def get_predicted_states(session_id):
     """
@@ -422,17 +423,17 @@ def get_predicted_states(session_id):
 
         if mode == 'mean':
             states = [{
-                'time': states.times[i], 
+                'time': states.times[i],
                 'state': states.snapshot(i).mean
              } for i in range(len(states.times))]
         elif mode == 'metrics':
             states = [{
-                'time': states.times[i], 
+                'time': states.times[i],
                 'state': states.snapshot(i).metrics()
              } for i in range(len(states.times))]
         elif mode == 'multivariate_norm':
             states = [{
-                'time': states.times[i], 
+                'time': states.times[i],
                 'state': {
                     'mean': states.snapshot(i).mean,
                     'cov': states.snapshot(i).cov.tolist()
@@ -474,17 +475,17 @@ def get_predicted_event_state(session_id):
 
         if mode == 'mean':
             event_states = [{
-                'time': es.times[i], 
+                'time': es.times[i],
                 'state': es.snapshot(i).mean
              } for i in range(len(es.times))]
         elif mode == 'metrics':
             event_states = [{
-                'time': es.times[i], 
+                'time': es.times[i],
                 'state': es.snapshot(i).metrics()
              } for i in range(len(es.times))]
         elif mode == 'multivariate_norm':
             event_states = [{
-                'time': es.times[i], 
+                'time': es.times[i],
                 'state': {
                     'mean': es.snapshot(i).mean,
                     'cov': es.snapshot(i).cov.tolist()
@@ -520,7 +521,7 @@ def get_predicted_perf_metrics(session_id):
     if not sessions[session_id].initialized:
         abort(400, 'Model not initialized')
 
-    app.logger.debug("Get predicted performance metrics for session {}".format(session_id)) 
+    app.logger.debug("Get predicted performance metrics for session {}".format(session_id))
     mode = request.args.get('return_format', 'mean')
     with sessions[session_id].locks['results']:
         if sessions[session_id].results is None:
@@ -530,7 +531,7 @@ def get_predicted_perf_metrics(session_id):
 
         if mode == 'mean':
             pm = [{
-                'time': states.times[i], 
+                'time': states.times[i],
                 'state': sessions[session_id].model.observables(states.snapshot(i).mean)
              } for i in range(len(states.times))]
         elif mode == 'metrics':
@@ -539,7 +540,7 @@ def get_predicted_perf_metrics(session_id):
                 samples = states.snapshot(i).sample(100)
                 samples = UnweightedSamples([sessions[session_id].model.observables(x_) for x_ in samples])
                 pm.append({
-                    'time': states.times[i], 
+                    'time': states.times[i],
                     'state': samples.metrics()
                 })
         elif mode == 'multivariate_norm':
@@ -548,7 +549,7 @@ def get_predicted_perf_metrics(session_id):
                 samples = states.snapshot(i).sample(100)
                 samples = UnweightedSamples([sessions[session_id].model.observables(x_) for x_ in samples])
                 pm.append({
-                    'time': states.times[i], 
+                    'time': states.times[i],
                     'state': {
                         'mean': samples.mean,
                         'cov': samples.cov.tolist()
