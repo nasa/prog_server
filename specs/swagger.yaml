@@ -102,9 +102,34 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StateReturnWithTime" 
+                $ref: "#/components/schemas/PredictionPointWithTime" 
         "400":
-          description: Session not active, or model not initialized 
+          description: Session not active, or model not initialized
+  /v1/session/{id}/output: 
+    parameters:
+      - name: id
+        description: id for the active session (generated when session began)
+        in: path 
+        required: true
+        schema:
+          type: integer
+      - name: return_format
+        description: Format for the returned state
+        in: query
+        required: false
+        schema:
+          $ref: "#/components/schemas/ReturnFormat"
+    get:
+      description: Get the most recent estimate of the system output for the model used in this session.
+      responses:
+        "200":
+          description: Okay response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PredictionPointWithTime" 
+        "400":
+          description: Session not active, or model not initialized
   /v1/session/{id}/event_state:
     parameters:
       - name: id
@@ -126,9 +151,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StateReturnWithTime" 
+                $ref: "#/components/schemas/PredictionPointWithTime" 
         "400":
-          description: Session not active, or model not initialized 
+          description: Session not active, or model not initialized
   /v1/session/{id}/performance_metrics:
     parameters:
       - name: id
@@ -150,7 +175,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StateReturnWithTime"
+                $ref: "#/components/schemas/PredictionPointWithTime"
         "400":
           description: Session not active, or model not initialized 
   /v1/session/{id}/prediction/state:
@@ -176,7 +201,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/PredictionWithTime"
         "400":
-          description: Session not active, or model not initialized 
+          description: Session not active, or model not initialized
+  /v1/session/{id}/prediction/output:
+    parameters:
+      - name: id
+        in: path 
+        required: true
+        schema:
+          type: integer
+      - name: return_format
+        description: Format for the returned state
+        in: query
+        required: false
+        schema:
+          $ref: "#/components/schemas/ReturnFormat"
+    get:
+      description: Get the predicted output at save points (defined by pred_cfg['save_pts'] or pred_cfg['save_freq'])
+      responses:
+        "200":
+          description: Okay response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PredictionWithTime"
+        "400":
+          description: Session not active, or model not initialized
   /v1/session/{id}/prediction/event_state:
     parameters:
       - name: id
@@ -333,9 +382,9 @@ components:
           type: object
           properties:
             schema:
-              $ref: "#/components/schemas/StateReturn"
+              $ref: "#/components/schemas/PredictionPoint"
 
-    StateReturnWithTime:
+    PredictionPointWithTime:
       type: object
       description: The requested property with the time it was calculated
       required:
@@ -348,19 +397,24 @@ components:
           type: object
           properties:
             schema:
-              $ref: "#/components/schemas/StateReturn"
+              $ref: "#/components/schemas/PredictionPoint"
         performance_metrics:
           type: object
           properties:
             schema:
-              $ref: "#/components/schemas/StateReturn"
+              $ref: "#/components/schemas/PredictionPoint"
         state:
           type: object
           properties:
             schema:
-              $ref: "#/components/schemas/StateReturn"
+              $ref: "#/components/schemas/PredictionPoint"
+        output:
+          type: object
+          properties:
+            schema:
+              $ref: "#/components/schemas/PredictionPoint"
            
-    StateReturn:
+    PredictionPoint:
       oneOf:
         - type: object
           description: JSON representing requested variable (e.g., state, event state, performance metric)
@@ -551,6 +605,11 @@ components:
           properties:
             schema:
               $ref: "#/components/schemas/Prediction"
+        outputs:
+          type: object
+          properties:
+            schema:
+              $ref: "#/components/schemas/Prediction"
         performance_metrics:
           type: object
           properties:
@@ -568,7 +627,7 @@ components:
             type: object
             properties:
               schema:
-                $ref: "#/components/schemas/StateReturn"
+                $ref: "#/components/schemas/PredictionPoint"
         
     PredictionStatus:
       type: object
