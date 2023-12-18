@@ -102,7 +102,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StateReturnWithTime" 
+                $ref: "#/components/schemas/PredictionPointWithTime" 
         "400":
           description: Session not active, or model not initialized
   /v1/session/{id}/output: 
@@ -127,7 +127,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StateReturnWithTime" 
+                $ref: "#/components/schemas/PredictionPointWithTime" 
         "400":
           description: Session not active, or model not initialized
   /v1/session/{id}/event_state:
@@ -151,7 +151,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StateReturnWithTime" 
+                $ref: "#/components/schemas/PredictionPointWithTime" 
         "400":
           description: Session not active, or model not initialized
   /v1/session/{id}/performance_metrics:
@@ -175,7 +175,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StateReturnWithTime"
+                $ref: "#/components/schemas/PredictionPointWithTime"
         "400":
           description: Session not active, or model not initialized 
   /v1/session/{id}/prediction/state:
@@ -382,9 +382,9 @@ components:
           type: object
           properties:
             schema:
-              $ref: "#/components/schemas/StateReturn"
+              $ref: "#/components/schemas/PredictionPoint"
 
-    StateReturnWithTime:
+    PredictionPointWithTime:
       type: object
       description: The requested property with the time it was calculated
       required:
@@ -397,19 +397,24 @@ components:
           type: object
           properties:
             schema:
-              $ref: "#/components/schemas/StateReturn"
+              $ref: "#/components/schemas/PredictionPoint"
         performance_metrics:
           type: object
           properties:
             schema:
-              $ref: "#/components/schemas/StateReturn"
+              $ref: "#/components/schemas/PredictionPoint"
         state:
           type: object
           properties:
             schema:
-              $ref: "#/components/schemas/StateReturn"
+              $ref: "#/components/schemas/PredictionPoint"
+        output:
+          type: object
+          properties:
+            schema:
+              $ref: "#/components/schemas/PredictionPoint"
            
-    StateReturn:
+    PredictionPoint:
       oneOf:
         - type: object
           description: JSON representing requested variable (e.g., state, event state, performance metric)
@@ -600,6 +605,11 @@ components:
           properties:
             schema:
               $ref: "#/components/schemas/Prediction"
+        outputs:
+          type: object
+          properties:
+            schema:
+              $ref: "#/components/schemas/Prediction"
         performance_metrics:
           type: object
           properties:
@@ -617,7 +627,7 @@ components:
             type: object
             properties:
               schema:
-                $ref: "#/components/schemas/StateReturn"
+                $ref: "#/components/schemas/PredictionPoint"
         
     PredictionStatus:
       type: object
