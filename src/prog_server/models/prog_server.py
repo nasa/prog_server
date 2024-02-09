@@ -19,19 +19,25 @@ class ProgServer():
     def __init__(self):
         self.process = None
 
-    def run(self, host=DEFAULT_HOST, port=DEFAULT_PORT, debug=False, models={}, **kwargs) -> None:
+    def run(self, host=DEFAULT_HOST, port=DEFAULT_PORT, debug=False, models={}, predictors={}, **kwargs) -> None:
         """Run the server (blocking)
 
         Keyword Args:
             host (str, optional): Server host. Defaults to '127.0.0.1'.
             port (int, optional): Server port. Defaults to 8555.
             debug (bool, optional): If the server is started in debug mode
-            models (dict[str, PrognosticsModel]): a dictionary of extra models to consider. The key is the name used to identify it. 
+            models (dict[str, PrognosticsModel]): a dictionary of extra models to consider. The key is the name used to identify it.
+            predictors (dict[str, predictors.Predictor]): a dictionary of extra predictors to consider. The key is the name used to identify it. 
         """
         if not isinstance(models, dict):
             raise TypeError("Extra models (`model` arg in prog_server.run() or start()) must be in a dictionary in the form `name: model_name`")
 
         session.extra_models.update(models)
+
+        if not isinstance(predictors, dict):
+            raise TypeError("Custom Predictors (`predictors` arg in prog_server.run() or start()) must be in a dictionary in the form `name: pred_name`")
+
+        session.extra_predictors.update(predictors)
 
         self.host = host
         self.port = port

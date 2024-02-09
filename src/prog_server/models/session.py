@@ -12,6 +12,7 @@ from progpy import models, state_estimators, predictors, PrognosticsModel
 from threading import Lock
 
 extra_models = {}
+extra_predictors = {}
 
 
 class Session():
@@ -82,14 +83,28 @@ class Session():
 
         # Predictor
         try:
-            pred_class = getattr(predictors, pred_name)
+            if pred_name in extra_predictors:
+                pred_class = extra_predictors[pred_name]
+            else:
+                pred_class = getattr(predictors, pred_name)
         except AttributeError:
             abort(400, f"Invalid predictor name {pred_name}")
         app.logger.debug(f"Creating Predictor of type {self.pred_name}")
-        try:
-            self.pred = pred_class(self.model, **pred_cfg)
-        except Exception as e:
-            abort(400, f"Could not instantiate predictor with input: {e}")
+        if isinstance(pred_class, type) and issubclass(pred_class, predictors.Predictor):
+            # pred_class is a class, either from progpy or custom classes
+            try:
+                self.pred = pred_class(self.model, **pred_cfg)
+            except Exception as e:
+                abort(400, f"Could not instantiate predictor with input: {e}")
+        elif isinstance(pred_class, predictors.Predictor):
+            # pred_class is an instance of predictors.Predictor - use the object instead
+            # This happens for user predictors that are added to the server at startup.
+            self.pred = deepcopy(pred_class)
+            # Apply any configuration changes, overriding model config.
+            self.pred.parameters.update(pred_cfg)
+        else:
+            abort(400, f"Invalid model type {type(pred_name)} for model {pred_name}. For custom classes, the model must be either an instantiated PrognosticsModel subclass or classmame")
+            
         self.pred_cfg = self.pred.parameters
         
         # State Estimator

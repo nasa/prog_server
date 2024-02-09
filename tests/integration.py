@@ -2,8 +2,10 @@
 
 import time
 import unittest
+import numpy as np
 import prog_client, prog_server
 from progpy import PrognosticsModel
+from progpy.predictors import MonteCarlo
 from progpy.uncertain_data import MultivariateNormalDist
 from progpy.models import ThrownObject
 
@@ -242,6 +244,40 @@ class IntegrationTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         prog_server.stop()
+
+    def test_custom_predictors(self):
+        # Restart server with model
+        prog_server.stop()
+        #define the model
+        ball = ThrownObject(thrower_height=1.5, throwing_speed=20)
+        prog_server.start(models={'ball': ball}, port=9883)
+        ball_session = prog_client.Session('ball', port=9883)
+        initial_state = ball.initialize()
+        #call the external/extra predictor (here from progpy)
+        mc = MonteCarlo(ball)
+
+        x = MultivariateNormalDist(initial_state.keys(), initial_state.values(), np.diag([x_i*0.01 for x_i in initial_state.values()]))
+        
+        PREDICTION_HORIZON = 7.7
+        STEP_SIZE = 0.01
+        NUM_SAMPLES = 500
+
+        # Make Prediction
+        mc_results = mc.predict(x, n_samples=NUM_SAMPLES, dt=STEP_SIZE, horizon = PREDICTION_HORIZON)
+
+        metrics = mc_results.time_of_event.metrics()
+        print("\nPredicted Time of Event:")
+        print(metrics)  # Note this takes some time
+        fig = mc_results.time_of_event.plot_hist(keys = 'impact')
+        fig = mc_results.time_of_event.plot_hist(keys = 'falling')
+
+        print("\nSamples where falling occurs before horizon: {:.2f}%".format(metrics['falling']['number of samples']/NUM_SAMPLES * 100))
+        print("\nSamples where impact occurs before horizon: {:.2f}%".format(metrics['impact']['number of samples']/NUM_SAMPLES * 100))
+        
+        # Restart (to reset port)
+        prog_server.stop()
+        prog_server.start()
+
 
 # This allows the module to be executed directly    
 def run_tests():
