@@ -250,30 +250,24 @@ class IntegrationTest(unittest.TestCase):
         prog_server.stop()
         #define the model
         ball = ThrownObject(thrower_height=1.5, throwing_speed=20)
-        prog_server.start(models={'ball': ball}, port=9883)
-        ball_session = prog_client.Session('ball', port=9883)
-        initial_state = ball.initialize()
         #call the external/extra predictor (here from progpy)
         mc = MonteCarlo(ball)
-
-        x = MultivariateNormalDist(initial_state.keys(), initial_state.values(), np.diag([x_i*0.01 for x_i in initial_state.values()]))
+        prog_server.start(port=9883, predictors={'mc':mc})
+        ball_session = prog_client.Session('ThrownObject', port=9883, pred='mc')
         
-        PREDICTION_HORIZON = 7.7
-        STEP_SIZE = 0.01
-        NUM_SAMPLES = 500
-
-        # Make Prediction
-        mc_results = mc.predict(x, n_samples=NUM_SAMPLES, dt=STEP_SIZE, horizon = PREDICTION_HORIZON)
-
-        metrics = mc_results.time_of_event.metrics()
-        print("\nPredicted Time of Event:")
-        print(metrics)  # Note this takes some time
-        fig = mc_results.time_of_event.plot_hist(keys = 'impact')
-        fig = mc_results.time_of_event.plot_hist(keys = 'falling')
-
-        print("\nSamples where falling occurs before horizon: {:.2f}%".format(metrics['falling']['number of samples']/NUM_SAMPLES * 100))
-        print("\nSamples where impact occurs before horizon: {:.2f}%".format(metrics['impact']['number of samples']/NUM_SAMPLES * 100))
-        
+        #check that the prediction completes successfully without error
+        #get_prediction_status from the session - for errors
+        sessions_in_progress = True
+        STEP = 15  # Time to wait between pinging server (s)
+        while sessions_in_progress:
+            sessions_in_progress = False
+            status = ball_session.get_prediction_status()
+            if status['in progress'] != 0:
+                print(f'\tSession {ball_session.session_id} is still in progress')
+                sessions_in_progress = True
+                time.sleep(STEP)
+        print(f'\tSession {ball_session.session_id} complete')
+        print(status)
         # Restart (to reset port)
         prog_server.stop()
         prog_server.start()
