@@ -100,10 +100,10 @@ class Session():
             # pred_class is an instance of predictors.Predictor - use the object instead
             # This happens for user predictors that are added to the server at startup.
             self.pred = deepcopy(pred_class)
-            # Apply any configuration changes, overriding model config.
+            # Apply any configuration changes, overriding predictor config.
             self.pred.parameters.update(pred_cfg)
         else:
-            abort(400, f"Invalid model type {type(pred_name)} for model {pred_name}. For custom classes, the model must be either an instantiated PrognosticsModel subclass or classmame")
+            abort(400, f"Invalid predictor type {type(pred_name)} for predictor {pred_name}. For custom classes, the predictor must be mentioned with quotes in the pred argument")
             
         self.pred_cfg = self.pred.parameters
         
