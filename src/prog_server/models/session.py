@@ -103,7 +103,7 @@ class Session():
             # Apply any configuration changes, overriding model config.
             self.pred.parameters.update(pred_cfg)
         else:
-            abort(400, f"Invalid model type {type(pred_name)} for model {pred_name}. For custom classes, the model must be either an instantiated PrognosticsModel subclass or classmame")
+            abort(400, f"Invalid predictor type {type(pred_name)} for predictor {pred_name}. For custom predictors, the predictor must be .... ")
             
         self.pred_cfg = self.pred.parameters
         
