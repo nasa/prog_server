@@ -252,6 +252,9 @@ class IntegrationTest(unittest.TestCase):
         ball = ThrownObject(thrower_height=1.5, throwing_speed=20)
         #call the external/extra predictor (here from progpy)
         mc = MonteCarlo(ball)
+        with self.assertRaises(Exception):
+            prog_server.start(port=9883, predictors=[1, 2])
+
         prog_server.start(port=9883, predictors={'mc':mc})
         ball_session = prog_client.Session('ThrownObject', port=9883, pred='mc')
         
