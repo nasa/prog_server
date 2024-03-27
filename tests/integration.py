@@ -2,8 +2,10 @@
 
 import time
 import unittest
+import numpy as np
 import prog_client, prog_server
 from progpy import PrognosticsModel
+from progpy.predictors import MonteCarlo
 from progpy.uncertain_data import MultivariateNormalDist
 from progpy.models import ThrownObject
 
@@ -242,6 +244,37 @@ class IntegrationTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         prog_server.stop()
+
+    def test_custom_predictors(self):
+        # Restart server with model
+        prog_server.stop()
+        #define the model
+        ball = ThrownObject(thrower_height=1.5, throwing_speed=20)
+        #call the external/extra predictor (here from progpy)
+        mc = MonteCarlo(ball)
+        with self.assertRaises(Exception):
+            prog_server.start(port=9883, predictors=[1, 2])
+
+        prog_server.start(port=9883, predictors={'mc':mc})
+        ball_session = prog_client.Session('ThrownObject', port=9883, pred='mc')
+        
+        #check that the prediction completes successfully without error
+        #get_prediction_status from the session - for errors
+        sessions_in_progress = True
+        STEP = 15  # Time to wait between pinging server (s)
+        while sessions_in_progress:
+            sessions_in_progress = False
+            status = ball_session.get_prediction_status()
+            if status['in progress'] != 0:
+                print(f'\tSession {ball_session.session_id} is still in progress')
+                sessions_in_progress = True
+                time.sleep(STEP)
+        print(f'\tSession {ball_session.session_id} complete')
+        print(status)
+        # Restart (to reset port)
+        prog_server.stop()
+        prog_server.start()
+
 
 # This allows the module to be executed directly    
 def run_tests():
