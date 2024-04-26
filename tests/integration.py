@@ -146,6 +146,38 @@ class IntegrationTest(unittest.TestCase):
 
         # TODO UPDATED PREDICTION TIME
 
+    def test_dt(self):
+        # Set dt to 1 and save_freq to 0.1
+        session_point1 = prog_client.Session(
+            'ThrownObject',
+            pred_cfg={'save_freq': 0.1, 'dt':0.1})
+        session_1 = prog_client.Session(
+            'ThrownObject',
+            pred_cfg={'save_freq': 0.1, 'dt':1})
+
+        for _ in range(5):
+            # Wait for prediction to complete
+            time.sleep(0.5)
+            status = session_1.get_prediction_status()
+            if status['last prediction'] is not None:
+                break
+
+        for _ in range(5):
+            # Wait for prediction to complete
+            time.sleep(0.5)
+            status = session_point1.get_prediction_status()
+            if status['last prediction'] is not None:
+                break
+        
+        result_point1 = session_point1.get_predicted_event_state()
+        result_1 = session_1.get_predicted_event_state()
+        self.assertEqual(len(result_1[1][1].times), 9)
+        self.assertEqual(len(result_point1[1][1].times), 79)
+
+        # result_1 is less, despite having the same save_freq,
+        # because the time step is 1,
+        # so it can't save as frequently
+
     def test_error_in_init(self):
         # Invalid model name
         with self.assertRaises(Exception):
