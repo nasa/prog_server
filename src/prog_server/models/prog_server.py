@@ -19,7 +19,7 @@ class ProgServer():
     def __init__(self):
         self.process = None
 
-    def run(self, host=DEFAULT_HOST, port=DEFAULT_PORT, debug=False, models={}, predictors={}, **kwargs) -> None:
+    def run(self, host=DEFAULT_HOST, port=DEFAULT_PORT, debug=False, models={}, predictors={}, state_estimators={}, **kwargs) -> None:
         """Run the server (blocking)
 
         Keyword Args:
@@ -27,7 +27,8 @@ class ProgServer():
             port (int, optional): Server port. Defaults to 8555.
             debug (bool, optional): If the server is started in debug mode
             models (dict[str, PrognosticsModel]): a dictionary of extra models to consider. The key is the name used to identify it.
-            predictors (dict[str, predictors.Predictor]): a dictionary of extra predictors to consider. The key is the name used to identify it. 
+            predictors (dict[str, predictors.Predictor]): a dictionary of extra predictors to consider. The key is the name used to identify it.
+            estimators (dict[str, state_estimators.StateEstimator]): a dictionary of extra estimators to consider. The key is the name used to identify it.
         """
         if not isinstance(models, dict):
             raise TypeError("Extra models (`model` arg in prog_server.run() or start()) must be in a dictionary in the form `name: model_name`")
@@ -38,6 +39,11 @@ class ProgServer():
             raise TypeError("Custom Predictors (`predictors` arg in prog_server.run() or start()) must be in a dictionary in the form `name: pred_name`")
 
         session.extra_predictors.update(predictors)
+
+        if not isinstance(state_estimators, dict):
+            raise TypeError("Custom Estimator (`state_estimators` arg in prog_server.run() or start()) must be in a dictionary in the form `name: state_est_name`")
+
+        session.extra_estimators.update(state_estimators)
 
         self.host = host
         self.port = port

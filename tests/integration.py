@@ -8,6 +8,11 @@ from progpy import PrognosticsModel
 from progpy.predictors import MonteCarlo
 from progpy.uncertain_data import MultivariateNormalDist
 from progpy.models import ThrownObject
+from progpy.models.thrown_object import LinearThrownObject
+from progpy.state_estimators import KalmanFilter
+from progpy.state_estimators import ParticleFilter
+from progpy.uncertain_data import MultivariateNormalDist
+from progpy.uncertain_data import UnweightedSamples
 
 
 class IntegrationTest(unittest.TestCase):
@@ -304,6 +309,50 @@ class IntegrationTest(unittest.TestCase):
         print(f'\tSession {ball_session.session_id} complete')
         print(status)
         # Restart (to reset port)
+        prog_server.stop()
+        prog_server.start()
+
+    def test_custom_estimators(self):
+        # Restart server with model
+        prog_server.stop()
+
+        #define the custom model
+        ball = LinearThrownObject(thrower_height=1.5, throwing_speed=20)
+        x_guess = ball.StateContainer({'x': 1.75, 'v': 35})
+        kf = KalmanFilter(ball, x_guess)
+        prog_server.start(models ={'ball':ball}, port=9883, state_estimators={'kf':kf})
+        ball_session = prog_client.Session('ball', port=9883, state_est='kf')
+
+        # time step (s)
+        dt = 0.01 
+        x = ball.initialize()
+        # Initial input 
+        u = ball.InputContainer({})  
+
+        # Iterate forward 1 second and compare
+        x = ball.next_state(x, u, 1) 
+        ball_session.send_data(time=1, x=x['x'])
+
+        t, x_s = ball_session.get_state()
+
+        # To check if the output state is multivariate normal distribution
+        self.assertIsInstance(x_s, MultivariateNormalDist)
+      
+        # Setup Particle Filter
+        pf = ParticleFilter(ball, x_guess)
+        prog_server.stop()
+        prog_server.start(models ={'ball':ball}, port=9883, state_estimators={'pf': pf, 'kf':kf})
+        ball_session = prog_client.Session('ball', port=9883, state_est='pf')
+        
+        # Iterate forward 1 second and compare
+        x = ball.next_state(x, u, 1) 
+        ball_session.send_data(time=1, x=x['x'])
+        
+        t, x_s = ball_session.get_state()
+
+        # Ensure that PF output is unweighted samples
+        self.assertIsInstance(x_s, UnweightedSamples)
+       
         prog_server.stop()
         prog_server.start()
 

@@ -13,7 +13,7 @@ from threading import Lock
 
 extra_models = {}
 extra_predictors = {}
-
+extra_estimators = {}
 
 class Session():
     def __init__(self, session_id,
@@ -116,23 +116,41 @@ class Session():
             # Otherwise, will have to be initialized later
             # Check state estimator and predictor data
             try:
-                getattr(state_estimators, state_est_name)
+                if self.state_est_name not in extra_estimators:
+                    getattr(state_estimators, state_est_name)
             except AttributeError:  
                 abort(400, f"Invalid state estimator name {state_est_name}")
 
     def __initialize(self, x0, predict_queue=True):
         app.logger.debug("Initializing...")
-        state_est_class = getattr(state_estimators, self.state_est_name)
+        #Estimator
+        try:
+            if self.state_est_name in extra_estimators:
+                state_est_class = extra_estimators[self.state_est_name]
+            else:
+                state_est_class = getattr(state_estimators, self.state_est_name)
+        except AttributeError:
+            abort(400, f"Invalid state estimator name {self.state_est_name}")
         app.logger.debug(f"Creating State Estimator of type {self.state_est_name}")
+
         if isinstance(x0, str):
-            x0 = json.loads(x0)
+            x0 = json.loads(x0) #loads the initial state
         if set(self.model.states) != set(list(x0.keys())):
             abort(400, f"Initial state must have every state in model. states. Had {list(x0.keys())}, needed {self.model.states}")
-
-        try:
-            self.state_est = state_est_class(self.model, x0, **self.state_est_cfg)
-        except Exception as e:
-            abort(400, f"Could not instantiate state estimator with input: {e}")
+            
+        if isinstance(state_est_class, type) and issubclass(state_est_class, state_estimators.StateEstimator):
+            try:
+                self.state_est = state_est_class(self.model, x0, **self.state_est_cfg)
+            except Exception as e:
+                abort(400, f"Could not instantiate state estimator with input: {e}")
+        elif isinstance(state_est_class, state_estimators.StateEstimator):
+            # state_est_class is an instance of state_estimators.StateEstimator - use the object instead
+            # This happens for user state estimators that are added to the server at startup.
+            self.state_est = deepcopy(state_est_class)
+            # Apply any configuration changes, overriding predictor config.
+            self.state_est.parameters.update(self.state_est_cfg)
+        else:
+            abort(400, f"Invalid state estimator type {type(self.state_est_name)} for estimator {self.state_est_name}. For custom classes, the state estimator must be mentioned with quotes in the est argument")
 
         self.initialized = True
         if predict_queue:
