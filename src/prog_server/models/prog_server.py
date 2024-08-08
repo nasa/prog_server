@@ -28,7 +28,7 @@ class ProgServer():
             debug (bool, optional): If the server is started in debug mode
             models (dict[str, PrognosticsModel]): a dictionary of extra models to consider. The key is the name used to identify it.
             predictors (dict[str, predictors.Predictor]): a dictionary of extra predictors to consider. The key is the name used to identify it.
-            estimators (dict[str, state_estimators.StateEstimator]): a dictionary of extra estimators to consider. The key is the name used to identify it.
+            state_estimators (dict[str, state_estimators.StateEstimator]): a dictionary of extra estimators to consider. The key is the name used to identify it.
         """
         if not isinstance(models, dict):
             raise TypeError("Extra models (`model` arg in prog_server.run() or start()) must be in a dictionary in the form `name: model_name`")
