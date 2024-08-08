@@ -147,7 +147,7 @@ class Session():
             # state_est_class is an instance of state_estimators.StateEstimator - use the object instead
             # This happens for user state estimators that are added to the server at startup.
             self.state_est = deepcopy(state_est_class)
-            # Apply any configuration changes, overriding predictor config.
+            # Apply any configuration changes, overriding estimator config
             self.state_est.parameters.update(self.state_est_cfg)
         else:
             abort(400, f"Invalid state estimator type {type(self.state_est_name)} for estimator {self.state_est_name}. For custom classes, the state estimator must be mentioned with quotes in the est argument")
