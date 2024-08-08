@@ -2,9 +2,7 @@
 
 import time
 import unittest
-import numpy as np
 import prog_client, prog_server
-from progpy import PrognosticsModel
 from progpy.predictors import MonteCarlo
 from progpy.uncertain_data import MultivariateNormalDist
 from progpy.models import ThrownObject
