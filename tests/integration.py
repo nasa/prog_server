@@ -320,6 +320,9 @@ class IntegrationTest(unittest.TestCase):
         ball = LinearThrownObject(thrower_height=1.5, throwing_speed=20)
         x_guess = ball.StateContainer({'x': 1.75, 'v': 35})
         kf = KalmanFilter(ball, x_guess)
+        with self.assertRaises(Exception): 
+            # state_estimators not a dictionary 
+            prog_server.start(models ={'ball':ball}, port=9883, state_estimators=[20])
         prog_server.start(models ={'ball':ball}, port=9883, state_estimators={'kf':kf})
         ball_session = prog_client.Session('ball', port=9883, state_est='kf')
 
