@@ -30,11 +30,13 @@ app.add_url_rule(PREFIX + '/session/<int:session_id>/model', methods=['GET'], vi
 
 # Get current state
 app.add_url_rule(PREFIX + '/session/<int:session_id>/state', methods=['GET'], view_func=get_state)
+app.add_url_rule(PREFIX + '/session/<int:session_id>/output', methods=['GET'], view_func=get_output)
 app.add_url_rule(PREFIX + '/session/<int:session_id>/event_state', methods=['GET'], view_func=get_event_state)
 app.add_url_rule(PREFIX + '/session/<int:session_id>/performance_metrics', methods=['GET'], view_func=get_perf_metrics)
 
 # Get Prediction
 app.add_url_rule(PREFIX + '/session/<int:session_id>/prediction/state', methods=['GET'], view_func=get_predicted_states)
+app.add_url_rule(PREFIX + '/session/<int:session_id>/prediction/output', methods=['GET'], view_func=get_predicted_output)
 app.add_url_rule(PREFIX + '/session/<int:session_id>/prediction/event_state', methods=['GET'], view_func=get_predicted_event_state)
 app.add_url_rule(PREFIX + '/session/<int:session_id>/prediction/performance_metrics', methods=['GET'], view_func=get_predicted_perf_metrics)
 app.add_url_rule(PREFIX + '/session/<int:session_id>/prediction/events', methods=['GET'], view_func=get_predicted_toe)

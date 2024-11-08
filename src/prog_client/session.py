@@ -32,7 +32,7 @@ class Session:
     """
 
     _base_url = '/api/v1'
-    def __init__(self, model, host = '127.0.0.1', port=5000, **kwargs):
+    def __init__(self, model, host = '127.0.0.1', port=8555, **kwargs):
         self.host = 'http://' + host + ':' + str(port) + Session._base_url
 
         # Process kwargs with json value
@@ -135,6 +135,23 @@ class Session:
         result = pickle.load(result.raw)
         return (result['time'], result['state'])
 
+    def get_output(self):
+        """Get the model output 
+
+        Returns:
+            tuple: \\
+                | float: Time of state estimate
+                | UncertainData: Model state
+        """
+        result = requests.get(self.host + '/output', params={'return_format': 'uncertain_data'}, stream='True')
+
+        # If error code throw Exception
+        if result.status_code != 200:
+            raise Exception(result.text)
+
+        result = pickle.load(result.raw)
+        return (result['time'], result['output'])
+
     def get_predicted_state(self):
         """Get the predicted model state 
 
@@ -166,8 +183,25 @@ class Session:
         if result.status_code != 200:
             raise Exception(result.text)
 
-        result =  pickle.load(result.raw)
+        result = pickle.load(result.raw)
         return (result['time'], result['event_state'])
+
+    def get_predicted_output(self):
+        """Get the predicted output
+
+        Returns:
+            tuple: \\
+                | float: Time of prediction
+                | Prediction: predicted Event state
+        """
+        result = requests.get(self.host + '/prediction/output', params={'return_format': 'uncertain_data'}, stream='True')
+
+        # If error code throw Exception
+        if result.status_code != 200:
+            raise Exception(result.text)
+
+        result = pickle.load(result.raw)
+        return (result['prediction_time'], result['outputs'])
 
     def get_predicted_event_state(self):
         """Get the predicted event state
