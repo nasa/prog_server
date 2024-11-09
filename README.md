@@ -17,7 +17,7 @@ See documentation [here](https://nasa.github.io/progpy/prog_server_guide.html)
 Use the following to cite this repository:
 
 ```
-@misc{2023_nasa_prog_server,
+@misc{2024_nasa_prog_server,
     author    = {Christopher Teubert and Jason Watkins and Katelyn Jarvis},
     title     = {Prognostics As-A-Service (PaaS) Sandbox},
     month     = May,

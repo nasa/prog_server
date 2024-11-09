@@ -4,7 +4,7 @@
 from .models.prog_server import server
 import time
 
-__version__ = '1.7.0-pre'
+__version__ = '1.7.0'
 
 def run(**kwargs):
     """
