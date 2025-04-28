@@ -4,7 +4,7 @@
 from .models.prog_server import server
 import time
 
-__version__ = '1.7.0'
+__version__ = '1.8.0-pre'
 
 def run(**kwargs):
     """
@@ -20,7 +20,7 @@ def run(**kwargs):
     """
     server.run(**kwargs)
 
-def start(timeout=10, **kwargs):
+def start(timeout: float=10, **kwargs) -> None:
     """
     Start the server (not blocking).
 
@@ -43,7 +43,7 @@ def start(timeout=10, **kwargs):
     server.stop()
     raise Exception("Server startup timeout")
 
-def stop(timeout=10):
+def stop(timeout: float=10) -> None:
     """
     Stop the server.
 
@@ -57,7 +57,7 @@ def stop(timeout=10):
         time.sleep(1)
     raise Exception("Server startup timeout")
 
-def is_running():
+def is_running() -> bool:
     """
     Check if the server is running.
     """
