@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "prog_server"
+version = "1.8.0-pre"
+dependencies = [
+    'progpy',
+    'requests',
+    'urllib3',
+    'flask'
+    
+]
+requires-python = ">=3.9, <3.14"
+authors = [
+    {name = "Christopher Teubert", email = "christopher.a.teubert@nasa.gov"},
+    {name = "Katelyn Griffith", email = "katelyn.j.griffith@nasa.gov"},
+    {name = "Jason Watkins"}
+]
+maintainers = [
+    {name = "Christopher Teubert", email = "christopher.a.teubert@nasa.gov"},
+    {name = "Katelyn Griffith", email = "katelyn.j.griffith@nasa.gov"}
+]
+description = "The NASA Prognostics As-A-Service (PaaS) Sandbox (a.k.a. prog_server) is a simplified Software Oriented Architecture (SOA) for performing prognostics of engineering systems. The PaaS Sandbox is a wrapper around the Prognostics Algorithms and Models Packages, allowing 1+ users to access these packages features through a REST API. The package is intended to be used as a research tool to prototype and benchmark Prognostics As-A-Service (PaaS) architectures and work on the challenges facing such architectures."
+readme = "README.md"
+license = "NASA-1.3"
+license-files = ["license.pdf",]
+keywords = ['prognostics', 'diagnostics', 'fault detection', 'fdir', 'physics modeling', 'prognostics and health management', 'PHM', 'health management', 'prognostics as a service', 'ivhm']
+classifiers = [
+    'Development Status :: 5 - Production/Stable',
+
+    'Intended Audience :: Science/Research',
+    'Intended Audience :: Developers',
+    'Intended Audience :: Manufacturing',
+
+    'Topic :: Scientific/Engineering',
+    'Topic :: Scientific/Engineering :: Artificial Intelligence',
+    'Topic :: Scientific/Engineering :: Physics',
+
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
+    'Programming Language :: Python :: 3.13',
+    'Programming Language :: Python :: 3 :: Only'
+]
+
+[project.urls]
+Homepage = "https://nasa.github.io/progpy/"
+Documentation = "https://nasa.github.io/progpy/"
+Repository = "https://github.com/nasa/prog_server"
+Issues = "https://github.com/nasa/prog_server/issues"
+Organization = "https://www.nasa.gov/content/diagnostics-prognostics"
