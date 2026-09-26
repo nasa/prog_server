@@ -90,7 +90,7 @@ class Session:
         result = requests.post(self.host + '/loading', data={'type': type, 'cfg': json.dumps(cfg)})
         
         # If error code throw Exception
-        if result.status_code != 204:
+        if result.status_code not in (200, 204):
             raise Exception(result.text)
 
     def set_state(self, x):
