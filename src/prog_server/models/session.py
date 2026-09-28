@@ -1,28 +1,38 @@
 # Copyright © 2021 United States Government as represented by the Administrator of the
 # National Aeronautics and Space Administration.  All Rights Reserved.
 
+import json
+from copy import deepcopy
+from threading import Lock
+
+from flask import abort
+from flask import current_app as app
+from progpy import PrognosticsModel, models, predictors, state_estimators
+
 from prog_server.models.load_ests import build_load_est
 from prog_server.models.prediction_handler import add_to_predict_queue
-
-from copy import deepcopy
-from flask import current_app as app
-from flask import abort
-import json
-from progpy import models, state_estimators, predictors, PrognosticsModel
-from threading import Lock
 
 extra_models = {}
 extra_predictors = {}
 extra_estimators = {}
 
-class Session():
+class Session:
     def __init__(self, session_id,
-            model_name, model_cfg={}, x0=None,
-            state_est_name='ParticleFilter', state_est_cfg={},
-            load_est_name='MovingAverage', load_est_cfg={},
-            pred_name='MonteCarlo', pred_cfg={}):
+            model_name, model_cfg=None, x0=None,
+            state_est_name='ParticleFilter', state_est_cfg=None,
+            load_est_name='MovingAverage', load_est_cfg=None,
+            pred_name='MonteCarlo', pred_cfg=None):
         
         # Save config
+        if model_cfg is None:
+            model_cfg = {}
+        if state_est_cfg is None:
+            state_est_cfg = {}
+        if load_est_cfg is None:
+            load_est_cfg = {}
+        if pred_cfg is None:
+            pred_cfg = {}
+        
         self.session_id = session_id
         self.model_name = model_name
         self.state_est_name = state_est_name
@@ -135,7 +145,7 @@ class Session():
 
         if isinstance(x0, str):
             x0 = json.loads(x0) #loads the initial state
-        if set(self.model.states) != set(list(x0.keys())):
+        if set(self.model.states) != set(x0.keys()):
             abort(400, f"Initial state must have every state in model. states. Had {list(x0.keys())}, needed {self.model.states}")
             
         if isinstance(state_est_class, type) and issubclass(state_est_class, state_estimators.StateEstimator):

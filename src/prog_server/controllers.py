@@ -1,15 +1,17 @@
 # Copyright © 2021 United States Government as represented by the Administrator of the
 # National Aeronautics and Space Administration.  All Rights Reserved.
-from concurrent.futures._base import TimeoutError
-from flask import request, abort, jsonify
-from flask import current_app as app
 import json
 import pickle
-from prog_server.models.session import Session
-from prog_server.models.load_ests import update_moving_avg
-from progpy.sim_result import SimResult, LazySimResult
-from progpy.uncertain_data import UnweightedSamples
+from concurrent.futures._base import TimeoutError
+
+from flask import abort, jsonify, request
+from flask import current_app as app
 from progpy.predictors import Prediction, UnweightedSamplesPrediction
+from progpy.sim_result import LazySimResult, SimResult
+from progpy.uncertain_data import UnweightedSamples
+
+from prog_server.models.load_ests import update_moving_avg
+from prog_server.models.session import Session
 
 session_count = 0
 sessions = {}
@@ -459,7 +461,7 @@ def get_predicted_states(session_id):
     if not sessions[session_id].initialized:
         abort(400, 'Model not initialized')
 
-    app.logger.debug("Get predicted states for session {}".format(session_id)) 
+    app.logger.debug(f"Get predicted states for session {session_id}") 
     mode = request.args.get('return_format', 'mean')
     with sessions[session_id].locks['results']:
         if sessions[session_id].results is None:
@@ -511,7 +513,7 @@ def get_predicted_output(session_id):
     if not sessions[session_id].initialized:
         abort(400, 'Model not initialized')
 
-    app.logger.debug("Get predicted outputs for session {}".format(session_id))
+    app.logger.debug(f"Get predicted outputs for session {session_id}")
     mode = request.args.get('return_format', 'mean')
     with sessions[session_id].locks['results']:
         if sessions[session_id].results is None:
@@ -567,7 +569,7 @@ def get_predicted_event_state(session_id):
     if not sessions[session_id].initialized:
         abort(400, 'Model not initialized')
 
-    app.logger.debug("Get predicted event states for session {}".format(session_id))
+    app.logger.debug(f"Get predicted event states for session {session_id}")
     mode = request.args.get('return_format', 'mean')
     with sessions[session_id].locks['results']:
         if sessions[session_id].results is None:
@@ -623,7 +625,7 @@ def get_predicted_perf_metrics(session_id):
     if not sessions[session_id].initialized:
         abort(400, 'Model not initialized')
 
-    app.logger.debug("Get predicted performance metrics for session {}".format(session_id))
+    app.logger.debug(f"Get predicted performance metrics for session {session_id}")
     mode = request.args.get('return_format', 'mean')
     with sessions[session_id].locks['results']:
         if sessions[session_id].results is None:

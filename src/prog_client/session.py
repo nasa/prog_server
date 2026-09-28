@@ -1,9 +1,11 @@
 # Copyright © 2021 United States Government as represented by the Administrator of the
 # National Aeronautics and Space Administration.  All Rights Reserved.
 
-import requests, json
-import urllib3
+import json
 import pickle
+
+import requests
+import urllib3
 from progpy.uncertain_data import UncertainData
 from progpy.utils import containers
 
@@ -37,7 +39,7 @@ class Session:
 
         # Process kwargs with json value
         for key, value in kwargs.items():
-            if isinstance(value, dict) or isinstance(value, list):
+            if isinstance(value, (dict, list)):
                 kwargs[key] = json.dumps(value)
         
         # Start session
@@ -110,7 +112,7 @@ class Session:
             x = {'x': json.dumps(x)}
             input_format = 'dict'
         else:
-            raise Exception('Invalid state type ' + str(type(x)))
+            raise Exception(f'Invalid state type {type(x)}')
 
         result = requests.post(self.host + '/state', data=x, params={'format': input_format})
 

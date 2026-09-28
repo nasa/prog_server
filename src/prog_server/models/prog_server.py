@@ -11,7 +11,7 @@ DEFAULT_PORT = 8555
 DEFAULT_HOST = '127.0.0.1'
 
 
-class ProgServer():
+class ProgServer:
     """
     This class is a wrapper for the flask server.
     """
@@ -19,7 +19,7 @@ class ProgServer():
     def __init__(self):
         self.process = None
 
-    def run(self, host=DEFAULT_HOST, port=DEFAULT_PORT, debug=False, models={}, predictors={}, state_estimators={}, **kwargs) -> None:
+    def run(self, host=DEFAULT_HOST, port=DEFAULT_PORT, debug=False, models=None, predictors=None, state_estimators=None, **kwargs) -> None:
         """Run the server (blocking)
 
         Keyword Args:
@@ -30,6 +30,12 @@ class ProgServer():
             predictors (dict[str, predictors.Predictor]): a dictionary of extra predictors to consider. The key is the name used to identify it.
             state_estimators (dict[str, state_estimators.StateEstimator]): a dictionary of extra estimators to consider. The key is the name used to identify it.
         """
+        if models is None:
+            models = {}
+        if predictors is None:
+            predictors = {}
+        if state_estimators is None:
+            state_estimators = {}
         if not isinstance(models, dict):
             raise TypeError("Extra models (`model` arg in prog_server.run() or start()) must be in a dictionary in the form `name: model_name`")
 
