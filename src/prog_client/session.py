@@ -106,8 +106,8 @@ class Session:
             x = {'x': json.dumps(x.encode_json())}
             input_format = 'uncertain_data'
         elif isinstance(x, containers.DictLikeMatrixWrapper):
-            x = pickle.dumps(x)
-            input_format = 'state_container'
+            x = {'x': json.dumps(x.to_dict())}
+            input_format = 'dict'
         elif isinstance(x, dict):
             x = {'x': json.dumps(x)}
             input_format = 'dict'
@@ -269,8 +269,8 @@ class Session:
         if result.status_code != 200:
             raise Exception(result.text)
 
-        result = pickle.load(result.raw)
-        return (result['time'], result['performance_metrics'])
+        result = json.load(result.raw)
+        return (result['time'], decode_json(result['performance_metrics']))
 
     def get_predicted_performance_metrics(self):
         """Get predicted performance metrics

@@ -138,7 +138,7 @@ def set_state(session_id):
         x = json.loads(request.form.get('x'))
         x = decode_json(x)
     elif mode == 'state_container':
-        x = pickle.loads(request.get_data())
+        abort(400, "state_container format is no longer supported. Use 'dict' or 'uncertain_data'")
     else:
         abort(400, f'Unsupported format: {mode}')
     
@@ -443,9 +443,10 @@ def get_perf_metrics(session_id):
         elif mode == 'uncertain_data':
             x = sessions[session_id].state_est.x.sample(100)
             pm = UnweightedSamples([sessions[session_id].model.observables(x_) for x_ in x])
-            return pickle.dumps({
-                "time": sessions[session_id].state_est.t,
-                "performance_metrics": pm})
+            return json.dumps({
+                            "time": sessions[session_id].state_est.t,
+                            "performance_metrics": pm.encode_json()
+                        }, default=DictLikeMatrixWrapper.json_encoder)
         else:
             abort(400, f'Invalid return mode: {mode}') 
 
