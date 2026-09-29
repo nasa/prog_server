@@ -185,8 +185,8 @@ class Session:
         if result.status_code != 200:
             raise Exception(result.text)
 
-        result = pickle.load(result.raw)
-        return (result['time'], result['event_state'])
+        result = json.load(result.raw)
+        return (result['time'], decode_json(result['event_state']))
 
     def get_predicted_output(self):
         """Get the predicted output

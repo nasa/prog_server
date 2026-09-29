@@ -396,9 +396,10 @@ def get_event_state(session_id):
         elif mode == 'uncertain_data':
             x = sessions[session_id].state_est.x.sample(100)
             es = UnweightedSamples([sessions[session_id].model.event_state(x_) for x_ in x])
-            return pickle.dumps({
+            return json.dumps({
                 "time": sessions[session_id].state_est.t,
-                "event_state": es})
+                "event_state": es.encode_json()
+            }, default=DictLikeMatrixWrapper.json_encoder)
         else:
             abort(400, f'Invalid return mode: {mode}')
 
