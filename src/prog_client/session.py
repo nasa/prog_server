@@ -6,7 +6,7 @@ import pickle
 
 import requests
 import urllib3
-from progpy.uncertain_data import UncertainData
+from progpy.uncertain_data import UncertainData, decode_json
 from progpy.utils import containers
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -103,7 +103,7 @@ class Session:
             x (UncertainData, Dict, model.StateContainer): Model state
         """
         if isinstance(x, UncertainData):
-            x = pickle.dumps(x)
+            x = {'x': json.dumps(x.encode_json())}
             input_format = 'uncertain_data'
         elif isinstance(x, containers.DictLikeMatrixWrapper):
             x = pickle.dumps(x)
@@ -134,8 +134,8 @@ class Session:
         if result.status_code != 200:
             raise Exception(result.text)
 
-        result = pickle.load(result.raw)
-        return (result['time'], result['state'])
+        result = json.load(result.raw)
+        return (result['time'], decode_json(result['state']))
 
     def get_output(self):
         """Get the model output 

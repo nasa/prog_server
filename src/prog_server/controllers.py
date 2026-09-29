@@ -8,7 +8,7 @@ from flask import abort, jsonify, request
 from flask import current_app as app
 from progpy.predictors import Prediction, UnweightedSamplesPrediction
 from progpy.sim_result import LazySimResult, SimResult
-from progpy.uncertain_data import UnweightedSamples
+from progpy.uncertain_data import UnweightedSamples, decode_json
 
 from prog_server.models.load_ests import update_moving_avg
 from prog_server.models.session import Session
@@ -133,7 +133,11 @@ def set_state(session_id):
         if 'x' not in request.form:
             abort(400, "state ('x') must be specified in request body")
         x = sessions[session_id].model.StateContainer(json.loads(request.form.get('x')))
-    elif mode in ('uncertain_data', 'state_container'):
+    elif mode in 'uncertain_data':
+        x = json.loads(request.form.get('x'))
+        print(f"Decoded JSON: {x}")
+        x = decode_json(x)
+    elif mode == 'state_container':
         x = pickle.loads(request.get_data())
     else:
         abort(400, f'Unsupported format: {mode}')
@@ -298,9 +302,9 @@ def get_state(session_id):
                     'cov': sessions[session_id].state_est.x.cov.tolist(),
                 }
         elif mode == 'uncertain_data':
-            return pickle.dumps({
+            return jsonify({
                 "time": sessions[session_id].state_est.t,
-                "state": sessions[session_id].state_est.x
+                "state": sessions[session_id].state_est.x.encode_json()
                 })
         else:
             abort(400, f'Invalid return mode: {mode}')
