@@ -496,6 +496,7 @@ def get_predicted_states(session_id):
                 }
              } for i in range(len(states.times))]
         elif mode == 'uncertain_data':
+            # Prediction Object
             return pickle.dumps({
                 "prediction_time": sessions[session_id].results[1]['time'],
                 "states": states})
@@ -734,6 +735,6 @@ def get_model(session_id):
     if mode == 'json':
         return sessions[session_id].model.to_json()
     elif mode == 'pickle':
-        return pickle.dumps(sessions[session_id].model)
+        abort(400, "Pickle format is no longer supported. Use 'json' instead.")
     else:
         abort(400, f'Invalid return mode: {mode}')

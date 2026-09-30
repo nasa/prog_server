@@ -6,6 +6,7 @@ import pickle
 
 import requests
 import urllib3
+from progpy import PrognosticsModel
 from progpy.uncertain_data import UncertainData, decode_json
 from progpy.utils import containers
 
@@ -299,10 +300,11 @@ class Session:
         Example:
             m = session.get_model()
         """
-        result = requests.get(self.host + '/model', params={'return_format': 'pickle'}, stream='True')
+        result = requests.get(self.host + '/model', params={'return_format': 'json'}, stream='True')
 
         # If error code throw Exception
         if result.status_code != 200:
             raise Exception(result.text)
 
+        PrognosticsModel.from_json(json.load(result.raw))
         return pickle.load(result.raw)
