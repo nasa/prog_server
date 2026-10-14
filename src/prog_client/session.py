@@ -168,8 +168,9 @@ class Session:
         # If error code throw Exception
         if result.status_code != 200:
             raise Exception(result.text)
-
+        
         result = pickle.load(result.raw)
+        
         return (result['prediction_time'], result['states'])
 
     def get_event_state(self):
@@ -306,5 +307,4 @@ class Session:
         if result.status_code != 200:
             raise Exception(result.text)
 
-        PrognosticsModel.from_json(json.load(result.raw))
-        return pickle.load(result.raw)
+        return PrognosticsModel.from_json(json.load(result.raw))

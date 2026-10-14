@@ -733,7 +733,7 @@ def get_model(session_id):
     mode = request.args.get('return_format', 'json')
 
     if mode == 'json':
-        return sessions[session_id].model.to_json()
+        return jsonify(sessions[session_id].model.to_json())
     elif mode == 'pickle':
         abort(400, "Pickle format is no longer supported. Use 'json' instead.")
     else:
