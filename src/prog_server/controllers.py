@@ -497,9 +497,9 @@ def get_predicted_states(session_id):
              } for i in range(len(states.times))]
         elif mode == 'uncertain_data':
             # Prediction Object
-            return pickle.dumps({
+            return json.dumps({
                 "prediction_time": sessions[session_id].results[1]['time'],
-                "states": states})
+                "states": states.to_dict()}, default=DictLikeMatrixWrapper.json_encoder)
         else:
             abort(400, f'Invalid return mode: {mode}') 
         
