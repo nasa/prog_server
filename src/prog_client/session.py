@@ -3,11 +3,13 @@
 
 import json
 import pickle
+from unittest import result
 
 import requests
 import urllib3
 from progpy import PrognosticsModel
-from progpy.uncertain_data import UncertainData, decode_json
+from progpy.predictors.prediction import Prediction
+from progpy.uncertain_data import UncertainData, from_json
 from progpy.utils import containers
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -104,7 +106,7 @@ class Session:
             x (UncertainData, Dict, model.StateContainer): Model state
         """
         if isinstance(x, UncertainData):
-            x = {'x': json.dumps(x.encode_json())}
+            x = {'x': json.dumps(x.to_json())}
             input_format = 'uncertain_data'
         elif isinstance(x, containers.DictLikeMatrixWrapper):
             x = {'x': json.dumps(x.to_dict())}
@@ -136,7 +138,7 @@ class Session:
             raise Exception(result.text)
 
         result = json.load(result.raw)
-        return (result['time'], decode_json(result['state']))
+        return (result['time'], from_json(result['state']))
 
     def get_output(self):
         """Get the model output 
@@ -153,7 +155,7 @@ class Session:
             raise Exception(result.text)
 
         result = json.load(result.raw)
-        return (result['time'], decode_json(result['output']))
+        return (result['time'], from_json(result['output']))
 
     def get_predicted_state(self):
         """Get the predicted model state 
@@ -169,7 +171,9 @@ class Session:
         if result.status_code != 200:
             raise Exception(result.text)
         
-        result = pickle.load(result.raw)
+        result = json.loads(result.json())
+        
+        result['states'] = Prediction.from_dict(result['states'])
         
         return (result['prediction_time'], result['states'])
 
@@ -188,7 +192,7 @@ class Session:
             raise Exception(result.text)
 
         result = json.load(result.raw)
-        return (result['time'], decode_json(result['event_state']))
+        return (result['time'], from_json(result['event_state']))
 
     def get_predicted_output(self):
         """Get the predicted output
@@ -272,7 +276,7 @@ class Session:
             raise Exception(result.text)
 
         result = json.load(result.raw)
-        return (result['time'], decode_json(result['performance_metrics']))
+        return (result['time'], from_json(result['performance_metrics']))
 
     def get_predicted_performance_metrics(self):
         """Get predicted performance metrics

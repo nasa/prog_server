@@ -8,7 +8,7 @@ from flask import abort, jsonify, request
 from flask import current_app as app
 from progpy.predictors import Prediction, UnweightedSamplesPrediction
 from progpy.sim_result import LazySimResult, SimResult
-from progpy.uncertain_data import UnweightedSamples, decode_json
+from progpy.uncertain_data import UnweightedSamples, from_json
 from progpy.utils.containers import DictLikeMatrixWrapper
 
 from prog_server.models.load_ests import update_moving_avg
@@ -136,7 +136,7 @@ def set_state(session_id):
         x = sessions[session_id].model.StateContainer(json.loads(request.form.get('x')))
     elif mode in 'uncertain_data':
         x = json.loads(request.form.get('x'))
-        x = decode_json(x)
+        x = from_json(x)
     elif mode == 'state_container':
         abort(400, "state_container format is no longer supported. Use 'dict' or 'uncertain_data'")
     else:
@@ -304,7 +304,7 @@ def get_state(session_id):
         elif mode == 'uncertain_data':
             return jsonify({
                 "time": sessions[session_id].state_est.t,
-                "state": sessions[session_id].state_est.x.encode_json()
+                "state": sessions[session_id].state_est.x.to_json()
                 })
         else:
             abort(400, f'Invalid return mode: {mode}')
@@ -351,7 +351,7 @@ def get_output(session_id):
 
             return json.dumps({
                 "time": sessions[session_id].state_est.t,
-                "output": z.encode_json()
+                "output": z.to_json()
             }, default=DictLikeMatrixWrapper.json_encoder)
         else:
             abort(400, f'Invalid return mode: {mode}')
@@ -398,7 +398,7 @@ def get_event_state(session_id):
             es = UnweightedSamples([sessions[session_id].model.event_state(x_) for x_ in x])
             return json.dumps({
                 "time": sessions[session_id].state_est.t,
-                "event_state": es.encode_json()
+                "event_state": es.to_json()
             }, default=DictLikeMatrixWrapper.json_encoder)
         else:
             abort(400, f'Invalid return mode: {mode}')
@@ -445,7 +445,7 @@ def get_perf_metrics(session_id):
             pm = UnweightedSamples([sessions[session_id].model.observables(x_) for x_ in x])
             return json.dumps({
                             "time": sessions[session_id].state_est.t,
-                            "performance_metrics": pm.encode_json()
+                            "performance_metrics": pm.to_json()
                         }, default=DictLikeMatrixWrapper.json_encoder)
         else:
             abort(400, f'Invalid return mode: {mode}') 
@@ -497,9 +497,9 @@ def get_predicted_states(session_id):
              } for i in range(len(states.times))]
         elif mode == 'uncertain_data':
             # Prediction Object
-            return json.dumps({
+            return {
                 "prediction_time": sessions[session_id].results[1]['time'],
-                "states": states.to_dict()}, default=DictLikeMatrixWrapper.json_encoder)
+                "states": states.to_dict()}
         else:
             abort(400, f'Invalid return mode: {mode}') 
         
