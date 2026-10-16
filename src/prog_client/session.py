@@ -2,8 +2,6 @@
 # National Aeronautics and Space Administration.  All Rights Reserved.
 
 import json
-import pickle
-from unittest import result
 
 import requests
 import urllib3
@@ -227,7 +225,8 @@ class Session:
         if result.status_code != 200:
             raise Exception(result.text)
 
-        result = pickle.load(result.raw)
+        result = result.json()
+        result['event_states'] = Prediction.from_dict(result['event_states'])
         return (result['prediction_time'], result['event_states'])
 
     def get_predicted_toe(self):
@@ -246,8 +245,8 @@ class Session:
         if result.status_code != 200:
             raise Exception(result.text)
             
-        result = pickle.load(result.raw)
-        return (result['prediction_time'], result['time_of_event'])
+        result = json.load(result.raw)
+        return (result['prediction_time'], from_json(result['time_of_event']))
 
     def get_prediction_status(self):
         """Get the status of the prediction
@@ -277,7 +276,7 @@ class Session:
         if result.status_code != 200:
             raise Exception(result.text)
 
-        result = json.load(result.raw)
+        result = result.json()
         return (result['time'], from_json(result['performance_metrics']))
 
     def get_predicted_performance_metrics(self):
@@ -294,7 +293,8 @@ class Session:
         if result.status_code != 200:
             raise Exception(result.text)
 
-        result = pickle.load(result.raw)
+        result = result.json()
+        result['performance_metrics'] = Prediction.from_dict(result['performance_metrics'])
         return (result['prediction_time'], result['performance_metrics'])
     
     def get_model(self):
