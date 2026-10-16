@@ -171,7 +171,7 @@ class Session:
         if result.status_code != 200:
             raise Exception(result.text)
         
-        result = json.loads(result.json())
+        result = result.json()
         
         result['states'] = Prediction.from_dict(result['states'])
         
@@ -207,8 +207,10 @@ class Session:
         # If error code throw Exception
         if result.status_code != 200:
             raise Exception(result.text)
+        
+        result = result.json()
+        result['outputs'] = Prediction.from_dict(result['outputs'])
 
-        result = pickle.load(result.raw)
         return (result['prediction_time'], result['outputs'])
 
     def get_predicted_event_state(self):

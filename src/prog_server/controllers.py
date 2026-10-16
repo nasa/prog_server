@@ -549,13 +549,9 @@ def get_predicted_output(session_id):
                 }
              } for i in range(len(zs.times))]
         elif mode == 'uncertain_data':
-            if isinstance(zs, UnweightedSamplesPrediction) and isinstance(zs[0], LazySimResult):
-                # LazySimResult is un-pickleable in prog_models v1.2.2, so we need to convert it to a SimResult
-                zs2 = [SimResult(output.times, output.data) for output in zs]
-                zs = UnweightedSamplesPrediction(zs.times, zs2)
-            return pickle.dumps({
-                'prediction_time': sessions[session_id].results[1]['time'],
-                'outputs': zs})
+            return {
+                "prediction_time": sessions[session_id].results[1]['time'],
+                "outputs": zs.to_dict()}
         else:
             abort(400, f'Invalid return mode: {mode}')
 
