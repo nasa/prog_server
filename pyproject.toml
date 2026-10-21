@@ -6,11 +6,10 @@ build-backend = "setuptools.build_meta"
 name = "prog_server"
 version = "1.9.0-pre"
 dependencies = [
-    'progpy',
+    'progpy>=1.9.0-pre',
     'requests',
     'urllib3',
     'flask'
-    
 ]
 requires-python = ">=3.9, <3.15"
 authors = [
