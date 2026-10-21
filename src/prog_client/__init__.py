@@ -3,4 +3,4 @@
 
 from prog_client.session import Session
 
-__version__ = '1.8.0-pre'
+__version__ = '1.9.0-pre'
