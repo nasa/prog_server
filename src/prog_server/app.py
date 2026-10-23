@@ -1,8 +1,9 @@
 # Copyright © 2021 United States Government as represented by the Administrator of the
 # National Aeronautics and Space Administration.  All Rights Reserved.
 
-from prog_server.controllers import *
 from flask import Flask
+
+from prog_server.controllers import *
 
 app = Flask("prog_server")
 app.url_map.strict_slashes = False

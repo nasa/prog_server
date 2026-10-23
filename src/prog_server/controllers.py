@@ -1,15 +1,16 @@
 # Copyright © 2021 United States Government as represented by the Administrator of the
 # National Aeronautics and Space Administration.  All Rights Reserved.
-from concurrent.futures._base import TimeoutError
-from flask import request, abort, jsonify
-from flask import current_app as app
 import json
-import pickle
-from prog_server.models.session import Session
+from concurrent.futures._base import TimeoutError
+
+from flask import abort, jsonify, request
+from flask import current_app as app
+from progpy.predictors import Prediction
+from progpy.uncertain_data import UnweightedSamples, from_json
+from progpy.utils.containers import DictLikeMatrixWrapper
+
 from prog_server.models.load_ests import update_moving_avg
-from progpy.sim_result import SimResult, LazySimResult
-from progpy.uncertain_data import UnweightedSamples
-from progpy.predictors import Prediction, UnweightedSamplesPrediction
+from prog_server.models.session import Session
 
 session_count = 0
 sessions = {}
@@ -131,8 +132,11 @@ def set_state(session_id):
         if 'x' not in request.form:
             abort(400, "state ('x') must be specified in request body")
         x = sessions[session_id].model.StateContainer(json.loads(request.form.get('x')))
-    elif mode in ('uncertain_data', 'state_container'):
-        x = pickle.loads(request.get_data())
+    elif mode in 'uncertain_data':
+        x = json.loads(request.form.get('x'))
+        x = from_json(x)
+    elif mode == 'state_container':
+        abort(400, "state_container format is no longer supported. Use 'dict' or 'uncertain_data'")
     else:
         abort(400, f'Unsupported format: {mode}')
     
@@ -296,9 +300,9 @@ def get_state(session_id):
                     'cov': sessions[session_id].state_est.x.cov.tolist(),
                 }
         elif mode == 'uncertain_data':
-            return pickle.dumps({
+            return jsonify({
                 "time": sessions[session_id].state_est.t,
-                "state": sessions[session_id].state_est.x
+                "state": sessions[session_id].state_est.x.to_json()
                 })
         else:
             abort(400, f'Invalid return mode: {mode}')
@@ -342,9 +346,11 @@ def get_output(session_id):
         elif mode == 'uncertain_data':
             x = sessions[session_id].state_est.x.sample(100)
             z = UnweightedSamples([sessions[session_id].model.output(x_) for x_ in x])
-            return pickle.dumps({
+
+            return json.dumps({
                 "time": sessions[session_id].state_est.t,
-                "output": z})
+                "output": z.to_json()
+            }, default=DictLikeMatrixWrapper.json_encoder)
         else:
             abort(400, f'Invalid return mode: {mode}')
 
@@ -388,9 +394,10 @@ def get_event_state(session_id):
         elif mode == 'uncertain_data':
             x = sessions[session_id].state_est.x.sample(100)
             es = UnweightedSamples([sessions[session_id].model.event_state(x_) for x_ in x])
-            return pickle.dumps({
+            return json.dumps({
                 "time": sessions[session_id].state_est.t,
-                "event_state": es})
+                "event_state": es.to_json()
+            }, default=DictLikeMatrixWrapper.json_encoder)
         else:
             abort(400, f'Invalid return mode: {mode}')
 
@@ -434,9 +441,10 @@ def get_perf_metrics(session_id):
         elif mode == 'uncertain_data':
             x = sessions[session_id].state_est.x.sample(100)
             pm = UnweightedSamples([sessions[session_id].model.observables(x_) for x_ in x])
-            return pickle.dumps({
-                "time": sessions[session_id].state_est.t,
-                "performance_metrics": pm})
+            return json.dumps({
+                            "time": sessions[session_id].state_est.t,
+                            "performance_metrics": pm.to_json()
+                        }, default=DictLikeMatrixWrapper.json_encoder)
         else:
             abort(400, f'Invalid return mode: {mode}') 
 
@@ -459,7 +467,7 @@ def get_predicted_states(session_id):
     if not sessions[session_id].initialized:
         abort(400, 'Model not initialized')
 
-    app.logger.debug("Get predicted states for session {}".format(session_id)) 
+    app.logger.debug(f"Get predicted states for session {session_id}") 
     mode = request.args.get('return_format', 'mean')
     with sessions[session_id].locks['results']:
         if sessions[session_id].results is None:
@@ -486,9 +494,10 @@ def get_predicted_states(session_id):
                 }
              } for i in range(len(states.times))]
         elif mode == 'uncertain_data':
-            return pickle.dumps({
+            # Prediction Object
+            return {
                 "prediction_time": sessions[session_id].results[1]['time'],
-                "states": states})
+                "states": states.to_dict()}
         else:
             abort(400, f'Invalid return mode: {mode}') 
         
@@ -511,7 +520,7 @@ def get_predicted_output(session_id):
     if not sessions[session_id].initialized:
         abort(400, 'Model not initialized')
 
-    app.logger.debug("Get predicted outputs for session {}".format(session_id))
+    app.logger.debug(f"Get predicted outputs for session {session_id}")
     mode = request.args.get('return_format', 'mean')
     with sessions[session_id].locks['results']:
         if sessions[session_id].results is None:
@@ -538,13 +547,9 @@ def get_predicted_output(session_id):
                 }
              } for i in range(len(zs.times))]
         elif mode == 'uncertain_data':
-            if isinstance(zs, UnweightedSamplesPrediction) and isinstance(zs[0], LazySimResult):
-                # LazySimResult is un-pickleable in prog_models v1.2.2, so we need to convert it to a SimResult
-                zs2 = [SimResult(output.times, output.data) for output in zs]
-                zs = UnweightedSamplesPrediction(zs.times, zs2)
-            return pickle.dumps({
-                'prediction_time': sessions[session_id].results[1]['time'],
-                'outputs': zs})
+            return {
+                "prediction_time": sessions[session_id].results[1]['time'],
+                "outputs": zs.to_dict()}
         else:
             abort(400, f'Invalid return mode: {mode}')
 
@@ -567,7 +572,7 @@ def get_predicted_event_state(session_id):
     if not sessions[session_id].initialized:
         abort(400, 'Model not initialized')
 
-    app.logger.debug("Get predicted event states for session {}".format(session_id))
+    app.logger.debug(f"Get predicted event states for session {session_id}")
     mode = request.args.get('return_format', 'mean')
     with sessions[session_id].locks['results']:
         if sessions[session_id].results is None:
@@ -594,13 +599,9 @@ def get_predicted_event_state(session_id):
                 }
              } for i in range(len(es.times))]
         elif mode == 'uncertain_data':
-            if isinstance(es, UnweightedSamplesPrediction) and isinstance(es[0], LazySimResult):
-                # LazySimResult is un-pickleable in prog_models v1.2.2, so we need to convert it to a SimResult
-                es2 = [SimResult(event_state.times, event_state.data) for event_state in es]
-                es = UnweightedSamplesPrediction(es.times, es2)
-            return pickle.dumps({
+            return {
                 'prediction_time': sessions[session_id].results[1]['time'],
-                'event_states': es})
+                'event_states': es.to_dict()}
         else:
             abort(400, f'Invalid return mode: {mode}')
 
@@ -623,7 +624,7 @@ def get_predicted_perf_metrics(session_id):
     if not sessions[session_id].initialized:
         abort(400, 'Model not initialized')
 
-    app.logger.debug("Get predicted performance metrics for session {}".format(session_id))
+    app.logger.debug(f"Get predicted performance metrics for session {session_id}")
     mode = request.args.get('return_format', 'mean')
     with sessions[session_id].locks['results']:
         if sessions[session_id].results is None:
@@ -637,7 +638,7 @@ def get_predicted_perf_metrics(session_id):
                 'state': sessions[session_id].model.observables(states.snapshot(i).mean)
              } for i in range(len(states.times))]
         elif mode == 'metrics':
-            pm = list()
+            pm = []
             for i in range(len(states.times)):
                 samples = states.snapshot(i).sample(100)
                 samples = UnweightedSamples([sessions[session_id].model.observables(x_) for x_ in samples])
@@ -646,7 +647,7 @@ def get_predicted_perf_metrics(session_id):
                     'state': samples.metrics()
                 })
         elif mode == 'multivariate_norm':
-            pm = list()
+            pm = []
             for i in range(len(states.times)):
                 samples = states.snapshot(i).sample(100)
                 samples = UnweightedSamples([sessions[session_id].model.observables(x_) for x_ in samples])
@@ -658,15 +659,15 @@ def get_predicted_perf_metrics(session_id):
                     }
                 })
         elif mode == 'uncertain_data':
-            pm = list()
+            data = []
             for i in range(len(states.times)):
                 samples = states.snapshot(i).sample(100)
-                samples = UnweightedSamples([sessions[session_id].model.observables(x_) for x_ in samples])
-                pm.append(samples)
-            
-            return pickle.dumps({
+                data.append(UnweightedSamples([sessions[session_id].model.observables(x_) for x_ in samples]))
+                
+            pm = Prediction(states.times, data)
+            return {
                 "prediction_time": sessions[session_id].results[1]['time'],
-                "performance_metrics": Prediction(states.times, pm)})
+                "performance_metrics": pm.to_dict()}
         else:
             abort(400, f'Invalid return mode: {mode}')
         
@@ -705,9 +706,9 @@ def get_predicted_toe(session_id):
                 'cov': sessions[session_id].results[1]['time of event'].cov.tolist()
             }
         elif mode == 'uncertain_data':
-            return pickle.dumps({
+            return jsonify({
                 "prediction_time": sessions[session_id].results[1]['time'],
-                'time_of_event': sessions[session_id].results[1]['time of event']})
+                'time_of_event': sessions[session_id].results[1]['time of event'].to_json()})
         else:
             abort(400, f'Invalid return mode: {mode}')
 
@@ -722,8 +723,8 @@ def get_model(session_id):
     mode = request.args.get('return_format', 'json')
 
     if mode == 'json':
-        return sessions[session_id].model.to_json()
+        return jsonify(sessions[session_id].model.to_json())
     elif mode == 'pickle':
-        return pickle.dumps(sessions[session_id].model)
+        abort(400, "Pickle format is no longer supported. Use 'json' instead.")
     else:
         abort(400, f'Invalid return mode: {mode}')

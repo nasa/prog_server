@@ -1,10 +1,13 @@
 # Copyright © 2021 United States Government as represented by the Administrator of the
 # National Aeronautics and Space Administration.  All Rights Reserved.
 
-import requests, json
+import json
+
+import requests
 import urllib3
-import pickle
-from progpy.uncertain_data import UncertainData
+from progpy import PrognosticsModel
+from progpy.predictors.prediction import Prediction
+from progpy.uncertain_data import UncertainData, from_json
 from progpy.utils import containers
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -37,7 +40,7 @@ class Session:
 
         # Process kwargs with json value
         for key, value in kwargs.items():
-            if isinstance(value, dict) or isinstance(value, list):
+            if isinstance(value, (dict, list)):
                 kwargs[key] = json.dumps(value)
         
         # Start session
@@ -101,16 +104,16 @@ class Session:
             x (UncertainData, Dict, model.StateContainer): Model state
         """
         if isinstance(x, UncertainData):
-            x = pickle.dumps(x)
+            x = {'x': json.dumps(x.to_json())}
             input_format = 'uncertain_data'
         elif isinstance(x, containers.DictLikeMatrixWrapper):
-            x = pickle.dumps(x)
-            input_format = 'state_container'
+            x = {'x': json.dumps(x.to_dict())}
+            input_format = 'dict'
         elif isinstance(x, dict):
             x = {'x': json.dumps(x)}
             input_format = 'dict'
         else:
-            raise Exception('Invalid state type ' + str(type(x)))
+            raise Exception(f'Invalid state type {type(x)}')
 
         result = requests.post(self.host + '/state', data=x, params={'format': input_format})
 
@@ -132,8 +135,8 @@ class Session:
         if result.status_code != 200:
             raise Exception(result.text)
 
-        result = pickle.load(result.raw)
-        return (result['time'], result['state'])
+        result = json.load(result.raw)
+        return (result['time'], from_json(result['state']))
 
     def get_output(self):
         """Get the model output 
@@ -149,8 +152,8 @@ class Session:
         if result.status_code != 200:
             raise Exception(result.text)
 
-        result = pickle.load(result.raw)
-        return (result['time'], result['output'])
+        result = json.load(result.raw)
+        return (result['time'], from_json(result['output']))
 
     def get_predicted_state(self):
         """Get the predicted model state 
@@ -165,8 +168,11 @@ class Session:
         # If error code throw Exception
         if result.status_code != 200:
             raise Exception(result.text)
-
-        result = pickle.load(result.raw)
+        
+        result = result.json()
+        
+        result['states'] = Prediction.from_dict(result['states'])
+        
         return (result['prediction_time'], result['states'])
 
     def get_event_state(self):
@@ -183,8 +189,8 @@ class Session:
         if result.status_code != 200:
             raise Exception(result.text)
 
-        result = pickle.load(result.raw)
-        return (result['time'], result['event_state'])
+        result = json.load(result.raw)
+        return (result['time'], from_json(result['event_state']))
 
     def get_predicted_output(self):
         """Get the predicted output
@@ -199,8 +205,10 @@ class Session:
         # If error code throw Exception
         if result.status_code != 200:
             raise Exception(result.text)
+        
+        result = result.json()
+        result['outputs'] = Prediction.from_dict(result['outputs'])
 
-        result = pickle.load(result.raw)
         return (result['prediction_time'], result['outputs'])
 
     def get_predicted_event_state(self):
@@ -217,7 +225,8 @@ class Session:
         if result.status_code != 200:
             raise Exception(result.text)
 
-        result = pickle.load(result.raw)
+        result = result.json()
+        result['event_states'] = Prediction.from_dict(result['event_states'])
         return (result['prediction_time'], result['event_states'])
 
     def get_predicted_toe(self):
@@ -236,8 +245,8 @@ class Session:
         if result.status_code != 200:
             raise Exception(result.text)
             
-        result = pickle.load(result.raw)
-        return (result['prediction_time'], result['time_of_event'])
+        result = json.load(result.raw)
+        return (result['prediction_time'], from_json(result['time_of_event']))
 
     def get_prediction_status(self):
         """Get the status of the prediction
@@ -267,8 +276,8 @@ class Session:
         if result.status_code != 200:
             raise Exception(result.text)
 
-        result = pickle.load(result.raw)
-        return (result['time'], result['performance_metrics'])
+        result = result.json()
+        return (result['time'], from_json(result['performance_metrics']))
 
     def get_predicted_performance_metrics(self):
         """Get predicted performance metrics
@@ -284,7 +293,8 @@ class Session:
         if result.status_code != 200:
             raise Exception(result.text)
 
-        result = pickle.load(result.raw)
+        result = result.json()
+        result['performance_metrics'] = Prediction.from_dict(result['performance_metrics'])
         return (result['prediction_time'], result['performance_metrics'])
     
     def get_model(self):
@@ -297,10 +307,10 @@ class Session:
         Example:
             m = session.get_model()
         """
-        result = requests.get(self.host + '/model', params={'return_format': 'pickle'}, stream='True')
+        result = requests.get(self.host + '/model', params={'return_format': 'json'}, stream='True')
 
         # If error code throw Exception
         if result.status_code != 200:
             raise Exception(result.text)
 
-        return pickle.load(result.raw)
+        return PrognosticsModel.from_json(json.load(result.raw))
